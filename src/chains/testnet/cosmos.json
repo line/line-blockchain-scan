@@ -1,0 +1,10 @@
+{
+    "chain_name": "cosmos-vega",
+    "api":"https://vega.api.ping.pub",
+    "sdk_version": "0.42.9",
+    "addr_prefix": "cosmos",
+    "logos": {
+        "light": "/icon/LINK-logo-light.png",
+        "dark": "/icon/LINK-logo-dark.png"
+    }
+}

@@ -1,0 +1,113 @@
+/*
+ * Copyright (C) 2022 LINE Corporation
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *  
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*================================================================================
+
+NOTE:
+------
+PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
+WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+@import 'variables/_variables';
+
+
+body * {
+	font-family: 'Roboto'!important;
+}
+
+.color-text {
+	color: $primary !important;
+}
+
+.no-border-avatar * {
+	border-radius: 0!important;
+}
+
+.tos-title {
+	font-weight: 700;
+}
+
+.main-menu {
+	&.menu-light .navigation > li {
+		ul .active, &.active > a {
+		background: $primary!important;
+		box-shadow: none!important;
+		}
+	}
+	.navbar-header {
+		.navbar-brand {
+			.brand-text {
+			color: $lightgray;
+			}
+			.brand-logo img {
+				max-width: 100%;
+				margin-top: 9px;
+			}
+		}
+		.modern-nav-toggle {
+			color: $primary;
+		}
+	}
+}
+.nav-tabs .nav-link:after {
+	background: $primary !important;
+}
+
+.dark-layout {
+	.color-text {
+		color: $darkblue !important;
+	}
+	a, .nav-tabs .nav-item .nav-link.active, .bg-light-primary {
+		color: $darkblue;
+	}
+	.border-primary {
+	    border-color: $darkblue !important;
+	}
+	.btn-primary {
+	    border-color: $darkblue !important;
+	    background-color: $darkblue !important;
+	}
+	.main-menu {
+		&.menu-light .navigation > li {
+			ul .active, &.active > a {
+				background: $darkblue2!important;
+				box-shadow: none!important;
+			}
+		}
+		.navbar-header {
+			.navbar-brand .brand-text {
+				color: $darkgray;
+			}
+			.modern-nav-toggle > * {
+				color: $darkblue !important;
+			}
+		}
+	}
+	.nav-tabs .nav-item  {
+		.nav-link {
+			&:after {
+				background:  $darkblue !important;
+			}
+			background: rgba(83, 100, 255, 0.12) !important;
+		}
+	}
+}
+
+.small-logo {
+	max-width: 36px !important;
+}
