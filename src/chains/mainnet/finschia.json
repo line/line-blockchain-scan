@@ -1,0 +1,27 @@
+{
+    "chain_name": "Finschia Mainnet",
+    "api": {
+        "alpha": ["https://lbs-finschia.line-apps-alpha.com"],
+        "beta": ["https://lbs-finschia.line-apps-beta.com"],
+        "prod": ["https://lbs-finschia.line-apps.com"]
+    },
+    "sdk_version": {
+        "alpha": "0.5",
+        "beta": "0.5",
+        "prod": "0.5"
+    },
+    "coin_type": "438",
+    "min_tx_fee": "8000",
+    "assets": [{
+        "base": "cony",
+        "symbol": "LINK(LN)",
+        "exponent": "6",
+        "coingecko_id": "",
+        "logo": "https://www.line-website.com/link-scan-front-release/img/209a6fff584a69cc9183901efff475ff.png"
+    }],
+    "addr_prefix": "link",
+    "logos": {
+        "light": "/icon/LINK-logo-light.png",
+        "dark": "/icon/LINK-logo-dark.png"
+    }
+}

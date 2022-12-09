@@ -46,7 +46,7 @@ configs.keys().forEach(k => {
 
 chains = update
 localStorage.setItem('chains', JSON.stringify(update))
-const selected = chains['Ebony Testnet']
+const selected = chains['Finschia Mainnet']
 
 const avatarcache = localStorage.getItem('avatars')
 

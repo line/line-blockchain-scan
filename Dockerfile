@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-FROM FROM node:16-alpine AS build-env
+FROM harbor.linecorp.com/linkpublic/node:16-alpine AS build-env
 WORKDIR /app
 
 COPY . ./
