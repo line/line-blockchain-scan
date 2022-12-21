@@ -88,8 +88,10 @@ import {
 } from 'bootstrap-vue'
 import Ripple from 'vue-ripple-directive'
 import {
-  formatToken, getCachedValidators, getLocalAccounts, getLocalChains, getUserCurrency, getUserCurrencySign, numberWithCommas, tokenFormatter,
+  getCachedValidators, getUserCurrency, getUserCurrencySign,
 } from '@/libs/utils'
+import { getLocalChains, getLocalAccounts } from '@/libs/local'
+import { formatToken, tokenFormatter, numberWithCommas } from '@/libs/formatter'
 import FeatherIcon from '@/@core/components/feather-icon/FeatherIcon.vue'
 
 export default {

@@ -72,8 +72,9 @@ import {
   BTableSimple, BTr, BTd, BTabs, BTab, BTbody,
 } from 'bootstrap-vue'
 import {
-  abbr, getStakingValidatorByHex, isHexAddress, isStringArray, isToken, percent, tokenFormatter,
+  abbr, getStakingValidatorByHex, isHexAddress, isStringArray, isToken, percent,
 } from '@/libs/utils'
+import { tokenFormatter } from '@/libs/formatter'
 import ArrayFieldComponent from './ArrayFieldComponent.vue'
 
 export default {

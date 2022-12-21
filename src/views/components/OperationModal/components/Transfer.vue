@@ -111,8 +111,9 @@ import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import {
-  formatToken, formatTokenDenom, getUnitAmount, getUserCurrency, getUserCurrencySign,
+  getUnitAmount, getUserCurrency, getUserCurrencySign,
 } from '@/libs/utils'
+import { formatToken, formatTokenDenom } from '@/libs/formatter'
 
 export default {
   name: 'TransforDialogue',

@@ -282,8 +282,9 @@ import {
 } from 'bootstrap-vue'
 
 import {
-  percent, formatToken, StakingParameters, Validator, operatorAddressToAccount, consensusPubkeyToHexAddress, toDay, abbrMessage, abbrAddress,
+  percent, StakingParameters, Validator, operatorAddressToAccount, consensusPubkeyToHexAddress, toDay, abbrMessage, abbrAddress,
 } from '@/libs/utils'
+import { formatToken } from '@/libs/formatter'
 import { keybase } from '@/libs/fetch'
 import OperationModal from '@/views/components/OperationModal/index.vue'
 import StakingAddressComponent from './StakingAddressComponent.vue'

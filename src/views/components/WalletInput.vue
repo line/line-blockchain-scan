@@ -51,7 +51,7 @@ import { ValidationProvider } from 'vee-validate'
 import {
   BFormRadioGroup, BFormRadio, BFormGroup,
 } from 'bootstrap-vue'
-import { getLocalAccounts } from '@/libs/utils'
+import { getLocalAccounts } from '@/libs/local'
 
 export default {
   name: 'WalletInput',

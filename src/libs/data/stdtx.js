@@ -1,4 +1,5 @@
 import compareVersions from 'compare-versions'
+import { formatTokenAmount, isConvertedKey } from '../formatter'
 import Token from './token'
 
 function denomConverter(msg) {
@@ -22,7 +23,7 @@ function denomConverter(msg) {
         const title = findMatch(k, convertedKey)
         return {
           ...final,
-          [title]: replaceDenom(denom[k]),
+          [title]: (isConvertedKey(k) && typeof denom[k] === 'string') ? `${formatTokenAmount(denom[k], 6, denom.denom)}` : replaceDenom(denom[k]),
         }
       }, {})
     }

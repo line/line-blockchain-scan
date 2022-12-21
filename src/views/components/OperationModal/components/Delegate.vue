@@ -112,9 +112,8 @@ import {
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
-import {
-  formatToken, formatTokenDenom, getUnitAmount,
-} from '@/libs/utils'
+import { getUnitAmount } from '@/libs/utils'
+import { formatToken, formatTokenDenom } from '@/libs/formatter'
 import vSelect from 'vue-select'
 
 export default {

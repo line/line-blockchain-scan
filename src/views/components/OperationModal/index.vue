@@ -178,8 +178,9 @@ import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import {
-  extractAccountNumberAndSequence, getLocalAccounts, setLocalTxHistory, sign, timeIn,
+  extractAccountNumberAndSequence, sign, timeIn,
 } from '@/libs/utils'
+import { getLocalAccounts, setLocalTxHistory } from '@/libs/local'
 import vSelect from 'vue-select'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 

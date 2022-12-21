@@ -309,8 +309,9 @@ import {
 import { required } from '@validations'
 import store from '@/store'
 import {
-  addressDecode, addressEnCode, getLedgerAddress, getLocalAccounts,
+  addressDecode, addressEnCode, getLedgerAddress,
 } from '@/libs/utils'
+import { getLocalAccounts } from '@/libs/local'
 import { toHex } from '@cosmjs/encoding'
 
 export default {

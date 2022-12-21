@@ -88,9 +88,7 @@ import {
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
-import {
-  formatToken,
-} from '@/libs/utils'
+import { formatToken } from '@/libs/formatter'
 
 export default {
   name: 'VoteDialogue',

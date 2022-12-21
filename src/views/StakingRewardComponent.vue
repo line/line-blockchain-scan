@@ -97,7 +97,7 @@
 import {
   BCard, BCardHeader, BCardTitle, BCardBody, BMediaBody, BMedia, BMediaAside, BAvatar, BButton,
 } from 'bootstrap-vue'
-import { formatToken, numberWithCommas } from '@/libs/utils'
+import { formatToken, numberWithCommas } from '@/libs/formatter'
 import OperationModal from '@/views/components/OperationModal/index.vue'
 
 export default {

@@ -239,8 +239,10 @@ import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import {
-  formatToken, formatTokenDenom, getLocalAccounts, getUnitAmount, setLocalTxHistory, sign, timeIn,
+  getUnitAmount, sign, timeIn,
 } from '@/libs/utils'
+import { getLocalAccounts, setLocalTxHistory } from '@/libs/local'
+import { formatToken, formatTokenDenom } from '@/libs/formatter'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import { coin } from '@lbmjs/amino'
 import { getChainConfigForSymbol } from '@/libs/osmos'

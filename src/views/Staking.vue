@@ -223,8 +223,9 @@ import {
   BTable, BMedia, BAvatar, BBadge, BCard, BCardHeader, BCardTitle, VBTooltip, BCardBody, BButton, BFormRadioGroup, BFormGroup,
 } from 'bootstrap-vue'
 import {
-  percent, StakingParameters, formatToken,
+  percent, StakingParameters,
 } from '@/libs/utils'
+import { formatToken } from '@/libs/formatter'
 import { keybase } from '@/libs/fetch'
 import OperationModal from '@/views/components/OperationModal/index.vue'
 // import { toHex } from '@cosmjs/encoding'

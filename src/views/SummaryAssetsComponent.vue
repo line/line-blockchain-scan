@@ -34,7 +34,7 @@
 
 <script>
 import { BTable, BCardTitle, BCard } from 'bootstrap-vue'
-import { formatTokenAmount, formatTokenDenom } from '@/libs/utils'
+import { formatTokenAmount, formatTokenDenom } from '@/libs/formatter'
 
 export default {
   components: {

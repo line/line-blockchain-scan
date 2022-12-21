@@ -8,7 +8,8 @@
 import { sha256 } from '@cosmjs/crypto'
 import { toHex } from '@cosmjs/encoding'
 import fetch from 'node-fetch'
-import { formatTokenDenom, getLocalChains } from './utils'
+import { getLocalChains } from './local'
+import { formatTokenDenom } from './formatter'
 
 export const poolIds = {
   1: true,

@@ -269,8 +269,9 @@ import FlipCountdown from 'vue2-flip-countdown'
 // import fetch from 'node-fetch'
 
 import {
-  getCachedValidators, getStakingValidatorByAccount, percent, tokenFormatter,
+  getCachedValidators, getStakingValidatorByAccount, percent,
 } from '@/libs/utils'
+import { tokenFormatter } from '@/libs/formatter'
 import { Proposal, Proposer } from '@/libs/data'
 import dayjs from 'dayjs'
 import OperationModal from '@/views/components/OperationModal/index.vue'

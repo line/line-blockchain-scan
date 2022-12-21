@@ -246,8 +246,10 @@ import FeatherIcon from '@/@core/components/feather-icon/FeatherIcon.vue'
 import {
   chartColors,
   formatNumber,
-  formatTokenAmount, formatTokenDenom, getLocalAccounts, getLocalChains, getUserCurrency, getUserCurrencySign, numberWithCommas, setUserCurrency,
+  getUserCurrency, getUserCurrencySign, setUserCurrency,
 } from '@/libs/utils'
+import { getLocalChains, getLocalAccounts } from '@/libs/local'
+import { formatTokenAmount, formatTokenDenom, numberWithCommas } from '@/libs/formatter'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import AppCollapse from '@core/components/app-collapse/AppCollapse.vue'
 import AppCollapseItem from '@core/components/app-collapse/AppCollapseItem.vue'

@@ -81,8 +81,9 @@ import {
 } from 'bootstrap-vue'
 
 import {
-  getLocalChains, timeIn, toDay,
+  timeIn, toDay,
 } from '@/libs/utils'
+import { getLocalChains } from '@/libs/local'
 import { Bech32, toHex } from '@cosmjs/encoding'
 
 export default {

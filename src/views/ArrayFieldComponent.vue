@@ -15,6 +15,10 @@
         :tablefield="eval_value(data.value)"
       />
       <span
+        v-if="isConvertedKey(data.field.key)"
+        :title="data.value"
+      >{{ data.value }}</span>
+      <span
         v-else
         :title="data.value"
       >{{ formatText(data.value) }}</span>
@@ -28,6 +32,7 @@ import { BTable } from 'bootstrap-vue'
 import {
   getStakingValidatorByHex, isHexAddress, isToken, percent, toDay, tokenFormatter,
 } from '@/libs/utils'
+import { isConvertedKey } from '@/libs/formatter'
 
 export default {
   name: 'ArrayFieldComponent',
@@ -41,6 +46,7 @@ export default {
     },
   },
   methods: {
+    isConvertedKey,
     eval_value(value) {
       if (typeof (value) === 'string') {
         return JSON.parse(value)

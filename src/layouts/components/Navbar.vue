@@ -91,7 +91,8 @@ import Ripple from 'vue-ripple-directive'
 import DarkToggler from '@core/layouts/components/app-navbar/components/DarkToggler.vue'
 import SearchBar from '@core/layouts/components/app-navbar/components/SearchBar.vue'
 // import CartDropdown from '@core/layouts/components/app-navbar/components/CartDropdown.vue'
-import { getLocalAccounts, timeIn, toDay } from '@/libs/utils'
+import { timeIn, toDay } from '@/libs/utils'
+import { getLocalAccounts } from '@/libs/local'
 // import UserDropdown from '@core/layouts/components/app-navbar/components/UserDropdown.vue'
 
 export default {

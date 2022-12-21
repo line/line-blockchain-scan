@@ -29,7 +29,7 @@
 import {
   VBTooltip, BTable, BAvatar, BButton,
 } from 'bootstrap-vue'
-import { getLocalTxHistory } from '@/libs/utils'
+import { getLocalTxHistory } from '@/libs/local'
 
 export default {
   components: {

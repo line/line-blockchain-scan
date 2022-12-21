@@ -141,9 +141,12 @@ import ToastificationContent from '@core/components/toastification/Toastificatio
 import Ripple from 'vue-ripple-directive'
 import VueQr from 'vue-qr'
 import {
-  formatTokenAmount, formatTokenDenom, tokenFormatter, toDay,
-  toDuration, abbrMessage, abbrAddress, getUserCurrency, getUserCurrencySign, numberWithCommas,
+  toDay,
+  toDuration, abbrMessage, abbrAddress, getUserCurrency, getUserCurrencySign,
 } from '@/libs/utils'
+import {
+  formatTokenAmount, formatTokenDenom, tokenFormatter, numberWithCommas,
+} from '@/libs/formatter'
 
 export default {
   components: {

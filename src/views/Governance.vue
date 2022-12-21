@@ -191,7 +191,8 @@ import {
 } from 'bootstrap-vue'
 import Ripple from 'vue-ripple-directive'
 import { Proposal } from '@/libs/data'
-import { percent, tokenFormatter } from '@/libs/utils'
+import { percent } from '@/libs/utils'
+import { tokenFormatter } from '@/libs/formatter'
 import dayjs from 'dayjs'
 import OperationModal from '@/views/components/OperationModal/index.vue'
 

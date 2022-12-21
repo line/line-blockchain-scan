@@ -225,9 +225,9 @@ import {
   BFormInput, BButton, BAlert, BFormGroup, BInputGroup, BInputGroupAppend, BFormRadio, BFormRadioGroup, BCard, BPopover,
 } from 'bootstrap-vue'
 import FeatherIcon from '@core/components/feather-icon/FeatherIcon.vue'
-import {
-  formatTokenAmount, getLocalAccounts, percent, setLocalTxHistory, sign,
-} from '@/libs/utils'
+import { percent, sign } from '@/libs/utils'
+import { getLocalAccounts, setLocalTxHistory } from '@/libs/local'
+import { formatTokenAmount } from '@/libs/formatter'
 import { getPairName } from '@/libs/osmos'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import DepositeWindow from './DepositeWindow.vue'
