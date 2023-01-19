@@ -51,6 +51,44 @@
           </div>
         </div>
       </b-card>
+      <b-card class="d-flex flex-row">
+        <b-card-header class="pt-0 pl-0 pr-0">
+          <b-card-title>Assets</b-card-title>
+        </b-card-header>
+        <b-card-body class="p-0">
+          <b-row>
+            <b-col
+              xm="12"
+              md="7"
+            >
+              <!-- tokens -->
+              <div
+                v-for="(token, index) in assetTable.items"
+                :key="`asset-${index}`"
+                class="d-flex justify-content-between mb-1"
+              >
+                <div class="d-flex align-items-center">
+                  <b-avatar
+                    :variant="`light-${token.color}`"
+                    rounded
+                  >
+                    <feather-icon
+                      :icon="token.icon"
+                      size="16"
+                      :class="`text-${token.color}`"
+                    />
+                  </b-avatar>
+                  <span class="font-weight-bold ml-75 d-none d-md-block mr-1">{{ token.type }} </span>
+                  <span
+                    v-b-tooltip.hover.top="token.denom"
+                    class="text-right"
+                  >{{ formatToken(token) }}</span>
+                </div>
+              </div>
+            </b-col>
+          </b-row>
+        </b-card-body>
+      </b-card>
       <b-card
         v-if="unbonding && unbonding.length > 0"
       >
@@ -140,9 +178,9 @@ import FeatherIcon from '@/@core/components/feather-icon/FeatherIcon.vue'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import Ripple from 'vue-ripple-directive'
 import VueQr from 'vue-qr'
+import chainAPI from '@/libs/fetch'
 import {
-  toDay,
-  toDuration, abbrMessage, abbrAddress, getUserCurrency, getUserCurrencySign,
+  toDay, toDuration, abbrMessage, abbrAddress, getUserCurrency, getUserCurrencySign, percent,
 } from '@/libs/utils'
 import {
   formatTokenAmount, formatTokenDenom, tokenFormatter, numberWithCommas,
@@ -201,6 +239,30 @@ export default {
     denoms() {
       return this.$store.state.chains.denoms
     },
+    assetTable() {
+      let total = []
+      let sum = 0
+      let sumCurrency = 0
+      total = total.concat(this.assets.map(x => {
+        const xh = x
+        xh.type = 'Balance'
+        xh.color = 'success'
+        xh.icon = 'CreditCardIcon'
+        xh.currency = this.formatCurrency(xh.amount, xh.denom)
+        sumCurrency += xh.currency
+        sum += Number(xh.amount)
+        return xh
+      }))
+      total = total.map(x => {
+        const xh = x
+        xh.percent = percent(Number(x.amount) / sum)
+        return xh
+      })
+      return {
+        items: total,
+        currency: parseFloat(sumCurrency.toFixed(2)),
+      }
+    },
   },
   created() {
     this.initial()
@@ -221,6 +283,17 @@ export default {
     initial() {
       this.$http.getStakingUnbonding(this.address).then(res => {
         this.unbonding = res.unbonding_responses || res
+      })
+      this.$http.getBankAccountBalance(this.address).then(bal => {
+        this.assets = bal
+        bal.forEach(x => {
+          const symbol = formatTokenDenom(x.denom)
+          if (!this.quotes[symbol] && symbol.indexOf('/') === -1) {
+            chainAPI.fetchTokenQuote(symbol).then(quote => {
+              this.$set(this.quotes, symbol, quote)
+            })
+          }
+        })
       })
     },
     formatNumber(v) {

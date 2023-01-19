@@ -111,21 +111,23 @@ export default {
       _this.$http.getAllIBCDenoms().then(x => {
         const denomsMap = {}
         const pathsMap = {}
-        x.denom_traces.forEach(trace => {
-          const hash = toHex(sha256(new TextEncoder().encode(`${trace.path}/${trace.base_denom}`)))
-          const ibcDenom = `ibc/${hash.toUpperCase()}`
-          denomsMap[ibcDenom] = trace.base_denom
+        if (x && x.denom_traces) {
+          x.denom_traces.forEach(trace => {
+            const hash = toHex(sha256(new TextEncoder().encode(`${trace.path}/${trace.base_denom}`)))
+            const ibcDenom = `ibc/${hash.toUpperCase()}`
+            denomsMap[ibcDenom] = trace.base_denom
 
-          const path = trace.path.split('/')
-          if (path.length >= 2) {
-            pathsMap[ibcDenom] = {
-              channel_id: path[path.length - 1],
-              port_id: path[path.length - 2],
+            const path = trace.path.split('/')
+            if (path.length >= 2) {
+              pathsMap[ibcDenom] = {
+                channel_id: path[path.length - 1],
+                port_id: path[path.length - 2],
+              }
             }
-          }
-        })
-        context.commit('setIBCDenoms', denomsMap)
-        context.commit('setIBCPaths', pathsMap)
+          })
+          context.commit('setIBCDenoms', denomsMap)
+          context.commit('setIBCPaths', pathsMap)
+        }
       })
     },
   },

@@ -21,6 +21,8 @@ export default class WrapStdTx {
     const self = new WrapStdTx()
     if (compareVersions(version, '0.40') < 1) {
       if (element.txhash) {
+        self.code = element.code ? element.code : 0
+        self.raw_log = element.raw_log
         self.txhash = element.txhash
         self.data = element.data
         self.gas_used = element.gas_used

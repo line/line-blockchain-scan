@@ -8,13 +8,13 @@
       <b-card-title>{{ data.title }}</b-card-title>
     </b-card-header>
     <b-card-body class="statistics-body">
-      <b-row>
+      <b-row class="justify-content-center">
         <b-col
           v-for="item in data.items"
           :key="item.icon"
-          xl="3"
-          md="6"
-          sm="6"
+          xl="4"
+          md="12"
+          sm="12"
           :class="item.customClass"
         >
           <div
