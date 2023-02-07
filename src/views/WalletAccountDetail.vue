@@ -178,7 +178,6 @@ import FeatherIcon from '@/@core/components/feather-icon/FeatherIcon.vue'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import Ripple from 'vue-ripple-directive'
 import VueQr from 'vue-qr'
-import chainAPI from '@/libs/fetch'
 import {
   toDay, toDuration, abbrMessage, abbrAddress, getUserCurrency, getUserCurrencySign, percent,
 } from '@/libs/utils'
@@ -209,11 +208,9 @@ export default {
     Ripple,
   },
   data() {
-    const { address } = this.$route.params
     return {
       currency: getUserCurrencySign(),
       totalCurrency: 0,
-      address,
       account: null,
       assets: [],
       redelegations: [],
@@ -225,6 +222,10 @@ export default {
     }
   },
   computed: {
+    address() {
+      const { address } = this.$route.params
+      return address
+    },
     txs() {
       if (this.transactions.txs) {
         return this.transactions.txs.map(x => ({
@@ -264,14 +265,19 @@ export default {
       }
     },
   },
-  created() {
-    this.initial()
-    this.$http.getTxsBySender(this.address).then(res => {
-      this.transactions = res
-    })
-    this.$http.getStakingParameters().then(res => {
-      this.stakingParameters = res
-    })
+  watch: {
+    address: {
+      handler() {
+        this.initial()
+        this.$http.getTxsBySender(this.address).then(res => {
+          this.transactions = res
+        })
+        this.$http.getStakingParameters().then(res => {
+          this.stakingParameters = res
+        })
+      },
+      immediate: true,
+    },
   },
   mounted() {
     const elem = document.getElementById('txevent')
@@ -286,14 +292,6 @@ export default {
       })
       this.$http.getBankAccountBalance(this.address).then(bal => {
         this.assets = bal
-        bal.forEach(x => {
-          const symbol = formatTokenDenom(x.denom)
-          if (!this.quotes[symbol] && symbol.indexOf('/') === -1) {
-            chainAPI.fetchTokenQuote(symbol).then(quote => {
-              this.$set(this.quotes, symbol, quote)
-            })
-          }
-        })
       })
     },
     formatNumber(v) {

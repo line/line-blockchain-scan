@@ -359,7 +359,6 @@ router.beforeEach((to, from, next) => {
   const c = to.params.chain
   if (c) {
     store.commit('select', { chain_name: c })
-    store.dispatch('chains/getAllIBCDenoms', Vue.prototype)
   }
 
   const config = JSON.parse(localStorage.getItem('chains'))

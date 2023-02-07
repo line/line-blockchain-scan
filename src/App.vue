@@ -114,8 +114,5 @@ export default {
       skinClasses,
     }
   },
-  created() {
-    store.dispatch('chains/getAllIBCDenoms', this)
-  },
 }
 </script>

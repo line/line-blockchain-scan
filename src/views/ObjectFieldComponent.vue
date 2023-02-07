@@ -1,7 +1,6 @@
 <template>
   <b-table-simple
     v-if="typeof tablefield === 'object'"
-    hover
     :small="small"
     striped
     stacked="sm"
@@ -35,7 +34,6 @@
           class="overflow-hidden"
         >
           <b-table-simple
-            hover
             :small="small"
             striped
             stacked="sm"
