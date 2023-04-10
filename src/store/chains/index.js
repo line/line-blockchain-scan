@@ -28,6 +28,7 @@ import { sha256 } from '@cosmjs/crypto'
 import { toHex } from '@cosmjs/encoding'
 
 let chains = {}
+const coingecko = {}
 
 let configs = require.context('../../chains/mainnet', false, /\.json$/)
 if (isTestnet()) {
@@ -39,9 +40,16 @@ configs.keys().forEach(k => {
   const c = {
     ...configs(k),
     api: configs(k).api[window.appConfig.PHASE],
+    dsvApi: configs(k).dsvApi[window.appConfig.PHASE],
+    dsvRpc: configs(k).dsvRpc[window.appConfig.PHASE],
     sdk_version: configs(k).sdk_version[window.appConfig.PHASE],
   }
   update[c.chain_name] = c
+  if (Array.isArray(c.assets)) {
+    c.assets.forEach(x => {
+      if (x.coingecko_id && x.coingecko_id !== '') coingecko[x.coingecko_id] = String(x.symbol).toUpperCase()
+    })
+  }
 })
 
 chains = update
@@ -66,6 +74,7 @@ export default {
   getters: {
     getchains: state => state.chains,
     getAvatarById: state => id => state.avatars[id],
+    isFinschiaSelected: state => state.selected.chain_name === 'Finschia Mainnet',
   },
   mutations: {
     setup_sdk_version(state, info) {
@@ -91,6 +100,8 @@ export default {
       if (defaultWallet && defaultWallet.length > 0) {
         localStorage.setItem('default-wallet', defaultWallet)
         state.chains.defaultWallet = defaultWallet
+      } else {
+        state.chains.defaultWallet = null
       }
     },
     setIBCDenoms(state, denoms) {
@@ -102,9 +113,20 @@ export default {
   },
   actions: {
     async getQuotes(context) {
-      fetch('https://price.ping.pub/quotes').then(data => data.json()).then(data => {
-        context.commit('setQuotes', data)
-      })
+      const keys = Object.keys(coingecko)
+      if (keys.length > 0) {
+        const currencies = 'usd,cny,eur,jpy,krw,sgd,hkd'
+        fetch(`https://api.coingecko.com/api/v3/simple/price?include_24hr_change=true&vs_currencies=${currencies}&ids=${keys.join(',')}`).then(data => data.json()).then(data => {
+          // use symbol as key instead of coingecko id
+          const quotes = {}
+          if (data && Object.keys(data)) {
+            Object.keys(data).forEach(k => {
+              quotes[coingecko[k]] = data[k]
+            })
+          }
+          context.commit('setQuotes', quotes)
+        })
+      }
     },
 
     async getAllIBCDenoms(context, _this) {

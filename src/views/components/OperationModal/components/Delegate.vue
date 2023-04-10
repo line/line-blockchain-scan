@@ -109,12 +109,15 @@ import {
   BRow, BCol, BInputGroup, BFormInput, BFormGroup, BFormSelect, BFormSelectOption,
   BInputGroupAppend,
 } from 'bootstrap-vue'
+import { MsgDelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx'
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import { getUnitAmount } from '@/libs/utils'
 import { formatToken, formatTokenDenom } from '@/libs/formatter'
 import vSelect from 'vue-select'
+import { operationalModal } from '@/@core/mixins/operational-modal'
+import { validators } from '@/@core/mixins/validators'
 
 export default {
   components: {
@@ -130,6 +133,7 @@ export default {
 
     ValidationProvider,
   },
+  mixins: [operationalModal, validators],
   props: {
     validatorAddress: {
       type: String,
@@ -170,7 +174,9 @@ export default {
   computed: {
     valOptions() {
       let options = []
-      const vals = this.validators.map(x => ({ value: x.operator_address, label: `${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
+      const vals = this.decoratedValidators
+        .filter(x => !this.isOverVotingPower(x.votingPower))
+        .map(x => ({ value: x.operator_address, label: `${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
       if (vals.length > 0) {
         options.push({ value: null, label: '=== ACTIVE VALIDATORS ===' })
         options = options.concat(vals)
@@ -186,20 +192,31 @@ export default {
       return this.setupBalance()
     },
     msg() {
-      return [{
-        typeUrl: '/lbm.staking.v1.MsgDelegate',
-        value: {
-          delegatorAddress: this.selectedAddress,
-          validatorAddress: this.selectedValidator,
-          amount: {
-            amount: getUnitAmount(this.amount, this.token),
-            denom: this.token,
-          },
+      const value = {
+        delegatorAddress: this.selectedAddress,
+        validatorAddress: this.selectedValidator,
+        amount: {
+          amount: getUnitAmount(this.amount, this.token),
+          denom: this.token,
         },
+      }
+
+      return [{
+        typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
+        value,
+        encodedValue: MsgDelegate.encode(value).finish(),
       }]
     },
     IBCDenom() {
       return this.$store.state.chains.denoms
+    },
+  },
+  watch: {
+    decoratedValidators() {
+      if (!this.decoratedValidators || this.decoratedValidators.length < 1 || !!this.selectedValidator) {
+        return
+      }
+      this.selectedValidator = this.decoratedValidators[0].operator_address
     },
   },
   mounted() {
@@ -211,9 +228,6 @@ export default {
   },
   methods: {
     loadData() {
-      this.$http.getValidatorList().then(v => {
-        this.validators = v
-      })
       this.$http.getValidatorUnbondedList().then(v => {
         this.unbundValidators = v
       })

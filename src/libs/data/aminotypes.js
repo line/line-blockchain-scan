@@ -26,8 +26,8 @@ function omitDefault(input) {
 function createDefaultTypes(prefix) {
     return {
         // bank
-        "/lbm.bank.v1.MsgSend": {
-            aminoType: "lbm-sdk/MsgSend",
+        "/cosmos.bank.v1beta1.MsgSend": {
+            aminoType: "cosmos-sdk/MsgSend",
             toAmino: ({ fromAddress, toAddress, amount }) => ({
                 from_address: fromAddress,
                 to_address: toAddress,
@@ -39,8 +39,8 @@ function createDefaultTypes(prefix) {
                 amount: [...amount],
             }),
         },
-        "/lbm.bank.v1.MsgMultiSend": {
-            aminoType: "lbm-sdk/MsgMultiSend",
+        "/cosmos.bank.v1beta1.MsgMultiSend": {
+            aminoType: "cosmos-sdk/MsgMultiSend",
             toAmino: ({ inputs, outputs }) => ({
                 inputs: inputs.map((input) => ({
                     address: input.address,
@@ -63,8 +63,8 @@ function createDefaultTypes(prefix) {
             }),
         },
         // distribution
-        "/lbm.distribution.v1.MsgFundCommunityPool": {
-            aminoType: "lbm-sdk/MsgFundCommunityPool",
+        "/cosmos.distribution.v1beta1.MsgFundCommunityPool": {
+            aminoType: "cosmos-sdk/MsgFundCommunityPool",
             toAmino: ({ amount, depositor }) => ({
                 amount: [...amount],
                 depositor: depositor,
@@ -74,8 +74,8 @@ function createDefaultTypes(prefix) {
                 depositor: depositor,
             }),
         },
-        "/lbm.distribution.v1.MsgSetWithdrawAddress": {
-            aminoType: "lbm-sdk/MsgModifyWithdrawAddress",
+        "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress": {
+            aminoType: "cosmos-sdk/MsgModifyWithdrawAddress",
             toAmino: ({ delegatorAddress, withdrawAddress, }) => ({
                 delegator_address: delegatorAddress,
                 withdraw_address: withdrawAddress,
@@ -85,8 +85,8 @@ function createDefaultTypes(prefix) {
                 withdrawAddress: withdraw_address,
             }),
         },
-        "/lbm.distribution.v1.MsgWithdrawDelegatorReward": {
-            aminoType: "lbm-sdk/MsgWithdrawDelegationReward",
+        "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": {
+            aminoType: "cosmos-sdk/MsgWithdrawDelegationReward",
             toAmino: ({ delegatorAddress, validatorAddress, }) => ({
                 delegator_address: delegatorAddress,
                 validator_address: validatorAddress,
@@ -96,8 +96,8 @@ function createDefaultTypes(prefix) {
                 validatorAddress: validator_address,
             }),
         },
-        "/lbm.distribution.v1.MsgWithdrawValidatorCommission": {
-            aminoType: "lbm-sdk/MsgWithdrawValidatorCommission",
+        "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission": {
+            aminoType: "cosmos-sdk/MsgWithdrawValidatorCommission",
             toAmino: ({ validatorAddress, }) => ({
                 validator_address: validatorAddress,
             }),
@@ -106,8 +106,8 @@ function createDefaultTypes(prefix) {
             }),
         },
         // gov
-        "/lbm.gov.v1.MsgDeposit": {
-            aminoType: "lbm-sdk/MsgDeposit",
+        "/cosmos.gov.v1beta1.MsgDeposit": {
+            aminoType: "cosmos-sdk/MsgDeposit",
             toAmino: ({ amount, depositor, proposalId }) => {
                 return {
                     amount,
@@ -123,8 +123,8 @@ function createDefaultTypes(prefix) {
                 };
             },
         },
-        "/lbm.gov.v1.MsgVote": {
-            aminoType: "lbm-sdk/MsgVote",
+        "/cosmos.gov.v1beta1.MsgVote": {
+            aminoType: "cosmos-sdk/MsgVote",
             toAmino: ({ option, proposalId, voter }) => {
                 return {
                     option: option,
@@ -140,16 +140,16 @@ function createDefaultTypes(prefix) {
                 };
             },
         },
-        "/lbm.gov.v1.MsgSubmitProposal": {
-            aminoType: "lbm-sdk/MsgSubmitProposal",
+        "/cosmos.gov.v1beta1.MsgSubmitProposal": {
+            aminoType: "cosmos-sdk/MsgSubmitProposal",
             toAmino: ({ initialDeposit, proposer, content, }) => {
                 utils_1.assertDefinedAndNotNull(content);
                 let proposal;
                 switch (content.typeUrl) {
-                    case "/lbm.gov.v1.TextProposal": {
+                    case "/cosmos.gov.v1beta1.TextProposal": {
                         const textProposal = gov_1.TextProposal.decode(content.value);
                         proposal = {
-                            type: "lbm-sdk/TextProposal",
+                            type: "cosmos-sdk/TextProposal",
                             value: {
                                 description: textProposal.description,
                                 title: textProposal.title,
@@ -169,14 +169,14 @@ function createDefaultTypes(prefix) {
             fromAmino: ({ initial_deposit, proposer, content, }) => {
                 let any_content;
                 switch (content.type) {
-                    case "lbm-sdk/TextProposal": {
+                    case "cosmos-sdk/TextProposal": {
                         const { value } = content;
                         utils_1.assert(utils_1.isNonNullObject(value));
                         const { title, description } = value;
                         utils_1.assert(typeof title === "string");
                         utils_1.assert(typeof description === "string");
                         any_content = any_1.Any.fromPartial({
-                            typeUrl: "/lbm.gov.v1.TextProposal",
+                            typeUrl: "/cosmos.gov.v1beta1.TextProposal",
                             value: gov_1.TextProposal.encode(gov_1.TextProposal.fromPartial({
                                 title: title,
                                 description: description,
@@ -195,8 +195,8 @@ function createDefaultTypes(prefix) {
             },
         },
         // staking
-        "/lbm.staking.v1.MsgBeginRedelegate": {
-            aminoType: "lbm-sdk/MsgBeginRedelegate",
+        "/cosmos.staking.v1beta1.MsgBeginRedelegate": {
+            aminoType: "cosmos-sdk/MsgBeginRedelegate",
             toAmino: ({ delegatorAddress, validatorSrcAddress, validatorDstAddress, amount, }) => {
                 utils_1.assertDefinedAndNotNull(amount, "missing amount");
                 return {
@@ -213,8 +213,8 @@ function createDefaultTypes(prefix) {
                 amount: amount,
             }),
         },
-        "/lbm.staking.v1.MsgCreateValidator": {
-            aminoType: "lbm-sdk/MsgCreateValidator",
+        "/cosmos.staking.v1beta1.MsgCreateValidator": {
+            aminoType: "cosmos-sdk/MsgCreateValidator",
             toAmino: ({ description, commission, minSelfDelegation, delegatorAddress, validatorAddress, pubkey, value, }) => {
                 utils_1.assertDefinedAndNotNull(description, "missing description");
                 utils_1.assertDefinedAndNotNull(commission, "missing commission");
@@ -265,15 +265,15 @@ function createDefaultTypes(prefix) {
                     delegatorAddress: delegator_address,
                     validatorAddress: validator_address,
                     pubkey: {
-                        typeUrl: "/lbm.crypto.secp256k1.PubKey",
+                        typeUrl: "/cosmos.crypto.secp256k1.PubKey",
                         value: encoding_1.fromBase64(decodedPubkey.value),
                     },
                     value: value,
                 };
             },
         },
-        "/lbm.staking.v1.MsgDelegate": {
-            aminoType: "lbm-sdk/MsgDelegate",
+        "/cosmos.staking.v1beta1.MsgDelegate": {
+            aminoType: "cosmos-sdk/MsgDelegate",
             toAmino: ({ delegatorAddress, validatorAddress, amount }) => {
                 utils_1.assertDefinedAndNotNull(amount, "missing amount");
                 return {
@@ -288,8 +288,8 @@ function createDefaultTypes(prefix) {
                 amount: amount,
             }),
         },
-        "/lbm.staking.v1.MsgEditValidator": {
-            aminoType: "lbm-sdk/MsgEditValidator",
+        "/cosmos.staking.v1beta1.MsgEditValidator": {
+            aminoType: "cosmos-sdk/MsgEditValidator",
             toAmino: ({ description, commissionRate, minSelfDelegation, validatorAddress, }) => {
                 utils_1.assertDefinedAndNotNull(description, "missing description");
                 return {
@@ -318,8 +318,8 @@ function createDefaultTypes(prefix) {
                 validatorAddress: validator_address,
             }),
         },
-        "/lbm.staking.v1.MsgUndelegate": {
-            aminoType: "lbm-sdk/MsgUndelegate",
+        "/cosmos.staking.v1beta1.MsgUndelegate": {
+            aminoType: "cosmos-sdk/MsgUndelegate",
             toAmino: ({ delegatorAddress, validatorAddress, amount, }) => {
                 utils_1.assertDefinedAndNotNull(amount, "missing amount");
                 return {
@@ -335,7 +335,7 @@ function createDefaultTypes(prefix) {
             }),
         },
         // ibc
-        "/ibc.applications.transfer.v1.MsgTransfer": {
+        "/ibc.applications.transfer.v1beta1.MsgTransfer": {
             aminoType: "cosmos-sdk/MsgTransfer",
             toAmino: ({ sourcePort, sourceChannel, token, sender, receiver, timeoutHeight, timeoutTimestamp, }) => {
                 var _a, _b, _c;

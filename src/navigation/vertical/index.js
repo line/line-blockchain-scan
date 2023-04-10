@@ -30,6 +30,11 @@ const modules = [
     route: 'blocks',
   },
   {
+    scope: 'Finschia Mainnet',
+    title: 'Staking (Beta)',
+    route: 'staking',
+  },
+  {
     scope: 'cos-mos',
     title: 'gravity',
     route: 'gravity',
@@ -45,14 +50,14 @@ const linkMenus = [
     header: 'Links',
   },
   {
-    title: 'lineblockchain',
+    title: 'Finschia Site',
     logo: '/icon/blockchain.png',
-    href: 'https://blockchain.line.me/',
+    href: 'https://finschia.network',
   },
   {
     title: 'faq',
     logo: '/icon/faq.png',
-    href: 'https://blockchain.line.me/faq-2',
+    href: 'https://finschia.network/faq',
   },
   {
     title: 'tos',
@@ -62,7 +67,7 @@ const linkMenus = [
   {
     title: 'contact',
     logo: '/icon/contact.png',
-    href: 'mailto:contact@link.network',
+    href: 'mailto:lineblockchain.explorer@linecorp.com',
   },
 ]
 

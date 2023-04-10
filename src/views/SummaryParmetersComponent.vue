@@ -8,13 +8,13 @@
       <b-card-title>{{ data.title }}</b-card-title>
     </b-card-header>
     <b-card-body class="statistics-body">
-      <b-row class="justify-content-center">
+      <b-row :class="rowAttributes.class">
         <b-col
           v-for="item in data.items"
           :key="item.icon"
-          xl="4"
-          md="12"
-          sm="12"
+          :xl="colAttributes.xl"
+          md="6"
+          sm="6"
           :class="item.customClass"
         >
           <div
@@ -66,14 +66,14 @@
                 />
               </b-avatar>
             </b-media-aside>
-            <b-media-body class="my-auto">
+            <div v-b-tooltip.hover.top="item.tooltip">
               <h4 class="font-weight-bolder mb-0">
                 {{ item.title || '-' }}
               </h4>
               <b-card-text class="font-small-3 mb-1 text-capitalize">
                 {{ item.subtitle }}
               </b-card-text>
-            </b-media-body>
+            </div>
           </b-media>
         </b-col>
       </b-row>
@@ -83,7 +83,7 @@
 
 <script>
 import {
-  BCard, BCardHeader, BCardTitle, BCardText, BCardBody, BRow, BCol, BMedia, BMediaAside, BAvatar, BMediaBody, BPopover, BButton,
+  BCard, BCardHeader, BCardTitle, BCardText, BCardBody, BRow, BCol, BMedia, BMediaAside, BAvatar, BPopover, BButton, VBTooltip,
 } from 'bootstrap-vue'
 import ObjectFieldComponent from './ObjectFieldComponent.vue'
 import ArrayFieldComponent from './ArrayFieldComponent.vue'
@@ -100,16 +100,30 @@ export default {
     BMedia,
     BAvatar,
     BMediaAside,
-    BMediaBody,
     BPopover,
     BButton,
     ObjectFieldComponent,
     ArrayFieldComponent,
   },
+  directives: {
+    'b-tooltip': VBTooltip,
+  },
   props: {
     data: {
       type: [Object, Array],
       default: () => {},
+    },
+    rowAttributes: {
+      type: Object,
+      default: () => ({
+        class: '',
+      }),
+    },
+    colAttributes: {
+      type: Object,
+      default: () => ({
+        xl: 3,
+      }),
     },
   },
 }

@@ -44,7 +44,7 @@ export default class PingWalletClient extends SigningStargateClient {
     }
     // console.log(signedTxBody)
     const signedTxBodyEncodeObject = {
-      typeUrl: '/lbm.tx.v1.TxBody',
+      typeUrl: '/cosmos.tx.v1beta1.TxBody',
       value: signedTxBody,
     }
     const signedTxBodyBytes = this.registry.encode(signedTxBodyEncodeObject)

@@ -1,14 +1,15 @@
 <template>
   <div>
-    <router-link
+    <b-card
       v-if="delegations.length === 0"
-      to="/wallet/import"
     >
-      <b-card class="addzone text-center">
-        <feather-icon icon="PlusIcon" />
-        Connect Wallet
-      </b-card>
-    </router-link>
+      <p class="mt-1 mb-1">
+        Can't find any delegation history in your account. Go to
+        <router-link :to="`/${selectedChain}/staking`">
+          Staking (Beta)
+        </router-link>
+      </p>
+    </b-card>
     <b-card
       v-for="(items,k) in groupedDelegations"
       :key="`row-${k}`"
@@ -92,7 +93,6 @@ import {
 } from '@/libs/utils'
 import { getLocalChains, getLocalAccounts } from '@/libs/local'
 import { formatToken, tokenFormatter, numberWithCommas } from '@/libs/formatter'
-import FeatherIcon from '@/@core/components/feather-icon/FeatherIcon.vue'
 
 export default {
   components: {
@@ -100,7 +100,6 @@ export default {
     BCard,
     BRow,
     BCol,
-    FeatherIcon,
   },
   directives: {
     'b-tooltip': VBTooltip,
@@ -120,6 +119,9 @@ export default {
     }
   },
   computed: {
+    selectedChain() {
+      return this.$store.state.chains.selected.chain_name
+    },
     formatedDelegations() {
       return this.delegations.map(x => ({
         validator: {
@@ -136,27 +138,38 @@ export default {
       }))
     },
     groupedDelegations() {
+      const delegations = [...this.delegations]
       const group = {}
-      this.delegations.forEach(x => {
-        const d = {
-          validator: {
-            logo: x.chain.logo,
-            validator: x.delegation.validator_address,
-            moniker: this.findMoniker(x.chain.chain_name, x.delegation.validator_address),
-            chain: x.chain.chain_name,
-          },
-          delegator: x.keyname,
-          delegator_address: x.delegation.delegator_address,
-          delegation: formatToken(x.balance),
-          reward: this.findReward(x.delegation.delegator_address, x.delegation.validator_address),
-          // action: '',
-        }
-        if (group[x.keyname]) {
-          group[x.keyname].push(d)
-        } else {
-          group[x.keyname] = [d]
-        }
-      })
+      delegations
+        .sort((a, b) => {
+          if (a.keyname > b.keyname) {
+            return 1
+          }
+          if (a.keyname < b.keyname) {
+            return -1
+          }
+          return 0
+        })
+        .forEach(x => {
+          const d = {
+            validator: {
+              logo: x.chain.logo,
+              validator: x.delegation.validator_address,
+              moniker: this.findMoniker(x.chain.chain_name, x.delegation.validator_address),
+              chain: x.chain.chain_name,
+            },
+            delegator: x.keyname,
+            delegator_address: x.delegation.delegator_address,
+            delegation: formatToken(x.balance),
+            reward: this.findReward(x.delegation.delegator_address, x.delegation.validator_address),
+            // action: '',
+          }
+          if (group[x.keyname]) {
+            group[x.keyname].push(d)
+          } else {
+            group[x.keyname] = [d]
+          }
+        })
       return group
     },
   },
@@ -215,18 +228,19 @@ export default {
                   })
                 }
               })
+            }).then(() => {
+              this.$http.getStakingDelegations(add.addr, chain).then(res => {
+                if (res.delegation_responses && res.delegation_responses.length > 0) {
+                  const delegation = res.delegation_responses.map(x => {
+                    const x2 = x
+                    x2.keyname = acc
+                    x2.chain = chain
+                    return x2
+                  })
+                  this.delegations = this.delegations.concat(delegation)
+                }
+              }).catch(() => { })
             })
-            this.$http.getStakingDelegations(add.addr, chain).then(res => {
-              if (res.delegation_responses && res.delegation_responses.length > 0) {
-                const delegation = res.delegation_responses.map(x => {
-                  const x2 = x
-                  x2.keyname = acc
-                  x2.chain = chain
-                  return x2
-                })
-                this.delegations = this.delegations.concat(delegation)
-              }
-            }).catch(() => {})
           })
         })
       }

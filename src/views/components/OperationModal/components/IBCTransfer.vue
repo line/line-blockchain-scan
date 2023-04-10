@@ -147,6 +147,7 @@ import { formatToken, formatTokenDenom } from '@/libs/formatter'
 import vSelect from 'vue-select'
 import { coin } from '@lbmjs/amino'
 import dayjs from 'dayjs'
+import { operationalModal } from '@/@core/mixins/operational-modal'
 
 export default {
   name: 'TransforDialogue',
@@ -164,6 +165,7 @@ export default {
 
     ValidationProvider,
   },
+  mixins: [operationalModal],
   props: {
     address: {
       type: String,

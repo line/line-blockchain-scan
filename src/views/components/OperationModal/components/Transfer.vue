@@ -107,6 +107,7 @@ import {
   BRow, BCol, BInputGroup, BInputGroupAppend, BFormInput, BFormGroup,
   BFormSelect, BFormSelectOption, BFormText,
 } from 'bootstrap-vue'
+import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx'
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
@@ -114,6 +115,7 @@ import {
   getUnitAmount, getUserCurrency, getUserCurrencySign,
 } from '@/libs/utils'
 import { formatToken, formatTokenDenom } from '@/libs/formatter'
+import { operationalModal } from '@/@core/mixins/operational-modal'
 
 export default {
   name: 'TransforDialogue',
@@ -130,6 +132,7 @@ export default {
     ValidationProvider,
 
   },
+  mixins: [operationalModal],
   props: {
     address: {
       type: String,
@@ -162,19 +165,21 @@ export default {
   },
   computed: {
     msg() {
+      const value = {
+        fromAddress: this.address,
+        toAddress: this.recipient,
+        amount: [
+          {
+            amount: getUnitAmount(this.amount, this.token),
+            denom: this.token,
+          },
+        ],
+      }
       return [
         {
-          typeUrl: '/lbm.bank.v1.MsgSend',
-          value: {
-            fromAddress: this.address,
-            toAddress: this.recipient,
-            amount: [
-              {
-                amount: getUnitAmount(this.amount, this.token),
-                denom: this.token,
-              },
-            ],
-          },
+          typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+          value,
+          encodedValue: MsgSend.encode(value).finish(),
         },
       ]
     },

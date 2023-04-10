@@ -23,15 +23,6 @@
                 </h4>
                 <span class="card-text">{{ validator.description.website }}</span>
               </div>
-              <div class="d-flex flex-wrap">
-                <b-button
-                  v-b-modal.operation-modal
-                  variant="primary"
-                  class="mr-25 mb-25"
-                >
-                  Delegate
-                </b-button>
-              </div>
             </div>
           </div>
 
@@ -88,9 +79,9 @@
               </b-avatar>
               <div class="ml-1">
                 <h5 class="mb-0">
-                  {{ apr(validator.commission.rate) }}
+                  {{ aprPretty }}
                 </h5>
-                <small>Annual Profit</small>
+                <small>ARR</small>
               </div>
             </div>
           </div>
@@ -277,10 +268,12 @@
 </template>
 
 <script>
+import BigNumber from 'bignumber.js'
 import {
-  BCard, BButton, BAvatar, BRow, BCol, BTable, BCardFooter, VBTooltip, VBModal, BBadge, BPagination,
+  BCard, BAvatar, BRow, BCol, BTable, BCardFooter, VBTooltip, VBModal, BBadge, BPagination,
 } from 'bootstrap-vue'
 
+import { validators } from '@/@core/mixins/validators'
 import {
   percent, StakingParameters, Validator, operatorAddressToAccount, consensusPubkeyToHexAddress, toDay, abbrMessage, abbrAddress,
 } from '@/libs/utils'
@@ -294,7 +287,6 @@ import StakingRewardComponent from './StakingRewardComponent.vue'
 export default {
   components: {
     BCard,
-    BButton,
     BRow,
     BCol,
     BAvatar,
@@ -311,6 +303,7 @@ export default {
     'b-modal': VBModal,
     'b-tooltip': VBTooltip,
   },
+  mixins: [validators],
   data() {
     return {
       commission: {
@@ -337,15 +330,18 @@ export default {
   },
   computed: {
     txs() {
-      if (this.transactions.txs) {
-        return this.transactions.txs.map(x => ({
+      if (this.transactions.tx_responses) {
+        return this.transactions.tx_responses.map(x => ({
           height: Number(x.height),
           txhash: x.txhash,
-          msgs: abbrMessage(x.tx.value ? x.tx.value.msg : x.tx.msg),
+          msgs: abbrMessage(x.tx.body.messages),
           time: toDay(x.timestamp),
         }))
       }
       return []
+    },
+    commissionRate() {
+      return new BigNumber(this.validator.commission.rate)
     },
   },
   created() {
@@ -402,9 +398,6 @@ export default {
     },
     tokenFormatter(token) {
       return formatToken({ amount: token, denom: this.stakingParameter.bond_denom })
-    },
-    apr(rate) {
-      return `${percent((1 - rate) * this.mintInflation)} %`
     },
     fetch_status(item, lastHeight) {
       return this.$http.getBlockByHeight(item[1]).then(res => {

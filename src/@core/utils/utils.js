@@ -1,6 +1,7 @@
 import router from '@/router'
 // eslint-disable-next-line object-curly-newline
 import { reactive, getCurrentInstance, watch, toRefs } from '@vue/composition-api'
+import finschiaConfig from '../../chains/mainnet/finschia.json'
 
 export const isObject = obj => typeof obj === 'object' && obj !== null
 
@@ -71,3 +72,5 @@ export const useRouter = () => {
 
 //   return a
 // }
+
+export const isFinschia = chainInfo => chainInfo.chain_name === finschiaConfig.chain_name

@@ -114,5 +114,8 @@ export default {
       skinClasses,
     }
   },
+  created() {
+    store.dispatch('chains/getQuotes')
+  },
 }
 </script>

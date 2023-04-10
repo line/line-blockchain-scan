@@ -29,51 +29,65 @@
     <b-row>
       <b-col>
         <summary-parmeters-component
-          :data="chain"
+          :data="decoratedChain"
+          :row-attributes="{ class: isFinschiaSelected ? '' : 'justify-content-center' }"
+          :col-attributes="{ xl: isFinschiaSelected ? 3 : 4 }"
         />
       </b-col>
     </b-row>
-    <b-row v-if="marketChartData">
+    <b-row v-if="isFinschiaSelected">
       <b-col>
-        <b-card>
-          <summary-price-chart
-            :chart-data="marketChartData"
-            :height="150"
-            :min-height="150"
-          />
-        </b-card>
+        <summary-parmeters-component :data="mint" />
+      </b-col>
+    </b-row>
+    <b-row v-if="isFinschiaSelected">
+      <b-col>
+        <summary-parmeters-component :data="staking" />
       </b-col>
     </b-row>
     <b-row>
       <b-col>
-        <summary-assets-component />
+        <summary-assets-component
+          :row-attributes="{ class: 'justify-content-center' }"
+        />
       </b-col>
     </b-row>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import {
-  BRow, BCol, BAlert, BCard,
+  BRow, BCol, BAlert,
 } from 'bootstrap-vue'
 import {
-  getUserCurrency, isToken, percent, timeIn, toDay, toDuration,
+  isToken, percent, timeIn, toDay, toDuration,
 } from '@/libs/utils'
 import { formatTokenAmount, tokenFormatter } from '@/libs/formatter'
 
 import SummaryParmetersComponent from './SummaryParmetersComponent.vue'
 import SummaryAssetsComponent from './SummaryAssetsComponent.vue'
-import SummaryPriceChart from './SummaryPriceChart.vue'
+
+const TOOLTIP_MAP = {
+  mint_denom: 'Type of coin to mint',
+  inflation_rate_change: 'Maximum annual change in inflation rate',
+  inflation_max: 'Maximum inflation rate',
+  inflation_min: 'Minimum inflation rate',
+  goal_bonded: 'Goal of percent bonded LINKs',
+  blocks_per_year: 'Expected blocks per year',
+  max_entries: 'Max entries for either unbonding delegation or redelegation',
+  historical_entries: 'The number of historical entries to persist',
+  unbonding_time: 'The time duration of unbonding',
+  bond_denom: 'The bondable coin denomination',
+}
 
 export default {
   components: {
     BRow,
     BCol,
     BAlert,
-    BCard,
     SummaryParmetersComponent,
     SummaryAssetsComponent,
-    SummaryPriceChart,
   },
   data() {
     return {
@@ -86,32 +100,35 @@ export default {
         items: [
           { subtitle: 'height', icon: 'BoxIcon', color: 'light-success' },
           { subtitle: 'supply_circulation', icon: 'DollarSignIcon', color: 'light-danger' },
+          { subtitle: 'bonded_ratio', icon: 'PercentIcon', color: 'light-warning' },
           { subtitle: 'inflation', icon: 'TrendingUpIcon', color: 'light-primary' },
         ],
+      },
+      mint: {
+        title: 'Mint Parameters',
+        items: null,
+      },
+      staking: {
+        title: 'Staking Parameters',
+        items: [],
       },
     }
   },
   computed: {
-    marketChartData() {
-      if (this.marketData && this.marketData.prices) {
-        const labels = this.marketData.prices.map(x => x[0])
-        const data = this.marketData.prices.map(x => x[1])
-        return {
-          labels,
-          datasets: [
-            {
-              label: `Price (${getUserCurrency().toUpperCase()})`,
-              data,
-              backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1,
-              pointStyle: 'dash',
-              barThickness: 15,
-            },
-          ],
-        }
+    ...mapGetters({
+      isFinschiaSelected: 'chains/isFinschiaSelected',
+    }),
+    decoratedChain() {
+      const items = [...this.chain.items]
+
+      if (!this.isFinschiaSelected) {
+        items.splice(2, 1)
       }
-      return null
+
+      return {
+        ...this.chain,
+        items,
+      }
     },
   },
   created() {
@@ -133,16 +150,27 @@ export default {
     })
 
     this.$http.getStakingParameters().then(res => {
+      const stakingParameters = { ...res }
+      if (stakingParameters.max_validators) {
+        delete stakingParameters.max_validators
+      }
+      this.staking = this.normalize(stakingParameters, 'Staking Parameters')
       Promise.all([this.$http.getStakingPool(), this.$http.getBankTotal(res.bond_denom)])
         .then(pool => {
           const bondedAndSupply = this.chain.items.findIndex(x => x.subtitle === 'supply_circulation')
-          const tokenAmount = parseInt(formatTokenAmount(pool[1].amount, 0, res.bond_denom, false), 10)
+          const tokenAmount = parseInt(formatTokenAmount(pool[1].amount, 0, stakingParameters.bond_denom, false), 10)
+          const bondedRatio = this.chain.items.findIndex(x => x.subtitle === 'bonded_ratio')
+
+          this.$set(this.chain.items[bondedRatio], 'title', `${percent(pool[0].bondedToken / pool[1].amount)}%`)
           this.$set(this.chain.items[bondedAndSupply], 'title', tokenAmount.toLocaleString())
         })
     })
     this.$http.getMintingInflation().then(res => {
       const chainIndex = this.chain.items.findIndex(x => x.subtitle === 'inflation')
       this.$set(this.chain.items[chainIndex], 'title', `${percent(res)}%`)
+    })
+    this.$http.getMintParameters().then(res => {
+      this.mint = this.normalize(res, 'Minting Parameters')
     })
   },
   methods: {
@@ -157,19 +185,19 @@ export default {
     makeItems(data) {
       return Object.keys(data).map(k => {
         if (isToken(data[k])) {
-          return { title: tokenFormatter(data[k]), subtitle: k }
+          return { title: tokenFormatter(data[k]), subtitle: k, tooltip: TOOLTIP_MAP[k] }
         }
         if (typeof data[k] === 'boolean') {
-          return { title: data[k], subtitle: k }
+          return { title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k] }
         }
         const d = Number(data[k])
         if (d < 1.01) {
-          return { title: `${percent(d)}%`, subtitle: k }
+          return { title: `${percent(d)}%`, subtitle: k, tooltip: TOOLTIP_MAP[k] }
         }
         if (d > 1000000000) {
-          return { title: `${toDuration(d / 1000000)}`, subtitle: k }
+          return { title: `${toDuration(d / 1000000)}`, subtitle: k, tooltip: TOOLTIP_MAP[k] }
         }
-        return { title: data[k], subtitle: k }
+        return { title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k] }
       })
     },
   },

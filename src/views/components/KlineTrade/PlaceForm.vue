@@ -170,14 +170,14 @@
       >
         {{ type === 0 ? `Buy ${ base }` : `Sell ${ base }` }}
       </b-button>
-      <b-button
+      <connect-dosi-vault
         v-else
-        to="/wallet/import"
-        block
-        variant="primary"
-      >
-        Connect Wallet
-      </b-button>
+        wrapper-component="b-button"
+        :wrapper-props="{
+          block: true,
+          variant: 'primary',
+        }"
+      />
 
     </b-form-group>
     <b-alert
@@ -231,6 +231,7 @@ import { formatTokenAmount } from '@/libs/formatter'
 import { getPairName } from '@/libs/osmos'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import DepositeWindow from './DepositeWindow.vue'
+import ConnectDosiVault from '../ConnectDosiVault/index.vue'
 
 export default {
   components: {
@@ -248,6 +249,7 @@ export default {
     DepositeWindow,
     // eslint-disable-next-line vue/no-unused-components
     ToastificationContent,
+    ConnectDosiVault
   },
   props: {
     type: {

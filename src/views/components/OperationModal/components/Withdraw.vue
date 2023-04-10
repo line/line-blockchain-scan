@@ -19,9 +19,11 @@
 </template>
 
 <script>
+import { operationalModal } from '@/@core/mixins/operational-modal'
 import {
   BRow, BCol, BInputGroup, BFormInput, BFormGroup,
 } from 'bootstrap-vue'
+import { MsgWithdrawDelegatorReward } from 'cosmjs-types/cosmos/distribution/v1beta1/tx'
 
 export default {
   name: 'WithdrawDialogue',
@@ -32,6 +34,7 @@ export default {
     BFormInput,
     BFormGroup,
   },
+  mixins: [operationalModal],
   props: {
     address: {
       type: String,
@@ -50,12 +53,14 @@ export default {
     msg() {
       const txMsgs = []
       this.delegations.forEach(i => {
+        const value = {
+          delegatorAddress: this.address,
+          validatorAddress: i.delegation.validator_address,
+        }
         txMsgs.push({
-          typeUrl: '/lbm.distribution.v1.MsgWithdrawDelegatorReward',
-          value: {
-            delegatorAddress: this.address,
-            validatorAddress: i.delegation.validator_address,
-          },
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          value,
+          encodedValue: MsgWithdrawDelegatorReward.encode(value).finish(),
         })
       })
       return txMsgs

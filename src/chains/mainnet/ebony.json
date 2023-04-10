@@ -5,6 +5,16 @@
         "beta": ["https://lbs-ebony.line-apps-beta.com"],
         "prod": ["https://lbs-ebony.line-apps.com"]
     },
+    "dsvApi": {
+        "alpha": ["https://dsvt-ebony.line-apps-alpha.com"],
+        "beta": ["https://dsvt-ebony.line-apps-beta.com"],
+        "prod": ["https://dsvt-ebony.line-apps.com"]
+    },
+    "dsvRpc": {
+        "alpha": ["https://lbs-ebony.line-apps-alpha.com"],
+        "beta": ["https://lbs-ebony.line-apps-beta.com"],
+        "prod": ["https://lbs-ebony.line-apps.com"]
+    },
     "sdk_version": {
         "alpha": "0.5",
         "beta": "0.5",

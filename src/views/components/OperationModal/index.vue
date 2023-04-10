@@ -48,6 +48,7 @@
             :proposal-id="proposalId"
             :proposal-title="proposalTitle"
             @update="componentUpdate"
+            @msg-change="handleMsgChange"
           />
           <b-row v-if="advance">
             <b-col cols="12">
@@ -57,7 +58,7 @@
               >
                 <validation-provider
                   v-slot="{ errors }"
-                  rules="required|integer"
+                  rules="required|regex:^([0-9\.]+)$"
                   name="fee"
                 >
                   <b-input-group>
@@ -154,14 +155,14 @@
         >
           {{ actionName }}
         </b-button>
-        <b-button
+        <connect-dosi-vault
           v-else
-          v-ripple.400="'rgba(255, 255, 255, 0.15)'"
-          variant="outline-primary"
-          to="/wallet/import"
-        >
-          Connect Wallet
-        </b-button>
+          wrapper-component="b-button"
+          :wrapper-props="{
+            variant: 'outline-primary',
+            'v-ripple.400': 'rgba(255, 255, 255, 0.15)',
+          }"
+        />
       </div>
     </template>
   </b-modal>
@@ -174,6 +175,8 @@ import {
   BForm, BButton, BInputGroupAppend, BFormCheckbox, BOverlay, BAlert,
 } from 'bootstrap-vue'
 import Ripple from 'vue-ripple-directive'
+import BigNumber from 'bignumber.js'
+
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
@@ -183,7 +186,10 @@ import {
 import { getLocalAccounts, setLocalTxHistory } from '@/libs/local'
 import vSelect from 'vue-select'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
+import { FinschiaClient } from '@lbmjs/finschia'
+import { calculateFee } from '@lbmjs/stargate'
 
+import { formatTokenAmount, formatTokenDenom } from '@/libs/formatter'
 import WalletInputVue from '../WalletInput.vue'
 import Delegate from './components/Delegate.vue'
 import Redelegate from './components/Redelegate.vue'
@@ -195,6 +201,9 @@ import Vote from './components/Vote.vue'
 import WithdrawCommission from './components/WithdrawCommission.vue'
 import GovDeposit from './components/GovDeposit.vue'
 import TransactionResult from './TransactionResult.vue'
+import ConnectDosiVault from '../ConnectDosiVault/index.vue'
+
+const DEFAULT_GAS = '250000'
 
 export default {
   name: 'DelegateDialogue',
@@ -231,6 +240,7 @@ export default {
     WithdrawCommission,
     GovDeposit,
     TransactionResult,
+    ConnectDosiVault,
   },
   directives: {
     Ripple,
@@ -281,8 +291,8 @@ export default {
       advance: false,
       fee: '900',
       feeDenom: '',
-      wallet: 'ledgerUSB',
-      gas: '250000',
+      wallet: 'dosiVault',
+      gas: DEFAULT_GAS,
       memo: '',
       blockingMsg: this.address ? 'You are not the owner' : 'No available account found.',
       actionName: 'Send',
@@ -300,17 +310,19 @@ export default {
       digits,
       length,
       alphaDash,
+
+      simulateDebounce: null,
     }
   },
   computed: {
     feeDenoms() {
       if (!this.balance) return []
-      return this.balance.filter(item => !item.denom.startsWith('ibc'))
+      return this.balance.filter(item => !item.denom.startsWith('ibc')).map(item => ({ ...item, denom: formatTokenDenom(item.denom) }))
     },
     accounts() {
       const accounts = getLocalAccounts()
       const selectedWallet = this.$store.state.chains.defaultWallet
-      return accounts[selectedWallet]
+      return accounts ? accounts[selectedWallet] : null
     },
     isOwner() {
       if (this.accounts) {
@@ -325,9 +337,12 @@ export default {
       if (this.address) {
         return this.address
       }
-      const chain = this.$store.state.chains.selected.chain_name
-      const selectedAddress = this.accounts.address.find(x => x.chain === chain)
-      return selectedAddress?.addr
+      if (this.accounts) {
+        const chain = this.$store.state.chains.selected.chain_name
+        const selectedAddress = this.accounts?.address.find(x => x.chain === chain)
+        return selectedAddress?.addr
+      }
+      return null
     },
     selectedChain() {
       let config = null
@@ -360,11 +375,12 @@ export default {
             this.balance = res.reverse()
             const token = this.balance.find(i => !i.denom.startsWith('ibc'))
             this.token = token.denom
-            if (token) this.feeDenom = token.denom
+            if (token) this.feeDenom = formatTokenDenom(token.denom)
           }
         })
-        this.fee = this.$store.state.chains.selected?.min_tx_fee || '1000'
-        this.feeDenom = this.$store.state.chains.selected?.assets[0]?.base || ''
+        this.fee = this.$store.state.chains.selected?.min_tx_fee || '900'
+        this.feeDenom = formatTokenDenom(this.$store.state.chains.selected?.assets[0]?.base || '')
+        this.gas = DEFAULT_GAS
       }
     },
     componentUpdate(obj) {
@@ -372,10 +388,50 @@ export default {
         this[key] = obj[key]
       })
     },
+    async handleMsgChange(msg) {
+      const isValid = await this.$refs.simpleRules.validate({ silent: true })
+      if (!isValid) return
+
+      const encodedMsg = msg.map(m => ({
+        typeUrl: m.typeUrl,
+        value: m.encodedValue,
+      }))
+
+      if (msg.length > 0) {
+        const defaultMinGasPrice = new BigNumber(this.$store.state.chains.selected?.min_gas_price)
+        const defaultGasLimit = new BigNumber(DEFAULT_GAS).times(new BigNumber(msg.length))
+        const defaultFee = defaultGasLimit.times(defaultMinGasPrice)
+
+        this.gas = defaultGasLimit.toString()
+        this.fee = defaultFee.toString()
+      }
+
+      if (this.simulateDebounce) {
+        clearTimeout(this.simulateDebounce)
+        this.simulateDebounce = null
+      }
+
+      this.simulateDebounce = setTimeout(async () => {
+        const finschiaClient = await FinschiaClient.connect(this.$store.state.chains.selected?.dsvRpc[0])
+        const [minimumGasPrice, simulateGasUsed] = await Promise.all([
+          finschiaClient.queryMinimumGasPrice(),
+          this.$http.simulate(encodedMsg, '', { amount: '0', denom: this.token }),
+        ])
+
+        const gasLimit = simulateGasUsed * 1.5
+        const { amount: [{ amount, denom }], gas } = calculateFee(Math.round(gasLimit), minimumGasPrice)
+        this.gas = gas
+        this.fee = formatTokenAmount(amount)
+        this.feeDenom = formatTokenDenom(denom)
+
+        this.simulateDebounce = null
+      }, 1000)
+    },
     handleOk(bvModalEvt) {
       bvModalEvt.preventDefault()
       this.$refs.simpleRules.validate().then(ok => {
         if (ok) {
+          this.showDismissibleAlert = false
           this.sendTx().then(ret => {
             this.error = ret
           })
@@ -386,6 +442,7 @@ export default {
       this.feeDenom = ''
       this.error = null
       this.showResult = false
+      this.showDismissibleAlert = false
     },
     async sendTx() {
       const txMsgs = this.$refs.component.msg
@@ -446,7 +503,7 @@ export default {
     },
     updateWallet(v) {
       if (v && v === 'address') {
-        this.wallet = 'keplr'
+        this.wallet = 'dosiVault'
       } else {
         this.wallet = v
       }

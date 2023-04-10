@@ -20,7 +20,9 @@ import fetch from 'node-fetch'
 // import axios from 'axios'
 import store from '@/store'
 import compareVersions from 'compare-versions'
-import { TxRaw } from 'lbmjs-types/lbm/tx/v1/tx'
+import {
+  AuthInfo, Fee, SignerInfo, TxBody, TxRaw,
+} from 'cosmjs-types/cosmos/tx/v1beta1/tx'
 import { toBase64 } from '@cosmjs/encoding'
 import {
   Proposal, ProposalTally, Proposer, StakingPool, Votes, Deposit,
@@ -107,8 +109,12 @@ export default class ChainFetch {
     return this.get(`/cosmos/tx/v1beta1/txs/${hash}`).then(data => WrapStdTx.create(data, ver))
   }
 
-  async getTxsBySender(sender, page = 1) {
-    return this.get(`/txs?message.sender=${sender}&page=${page}&limit=20`)
+  async getTxsBySenderLegacy(sender, page = 1) {
+    return this.get(`/txs?transfer.sender=${sender}&page=${page}&limit=20`)
+  }
+
+  async getTxsBySender(sender) {
+    return this.get(`/cosmos/tx/v1beta1/txs?events=transfer.sender=%27${sender}%27&pagination.limit=20`)
   }
 
   async getTxsByRecipient(recipient) {
@@ -146,6 +152,10 @@ export default class ChainFetch {
     return this.get('/staking/pool').then(data => new StakingPool().init(commonProcess(data)))
   }
 
+  async getFoundationParams() {
+    return this.get('/lbm/foundation/v1/params').then(data => commonProcess(data))
+  }
+
   async getMintingInflation() {
     if (this.isModuleLoaded('minting')) {
       return this.get('/minting/inflation').then(data => Number(commonProcess(data)))
@@ -169,7 +179,7 @@ export default class ChainFetch {
   }
 
   async getValidatorUnbondedList() {
-    return this.get('/lbm/staking/v1/validators?status=BOND_STATUS_UNBONDED').then(data => {
+    return this.get('/cosmos/staking/v1beta1/validators?status=BOND_STATUS_UNBONDED').then(data => {
       const result = commonProcess(data)
       const vals = result.validators ? result.validators : result
       return vals.map(i => new Validator().init(i))
@@ -177,7 +187,7 @@ export default class ChainFetch {
   }
 
   async getValidatorListByStatus(status) {
-    return this.get(`/lbm/staking/v1/validators?status=${status}&pagination.limit=500`).then(data => {
+    return this.get(`/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=500`).then(data => {
       const result = commonProcess(data)
       const vals = result.validators ? result.validators : result
       return vals.map(i => new Validator().init(i))
@@ -399,12 +409,38 @@ export default class ChainFetch {
   }
 
   // Simulate Execution of tx
-  async simulate(bodyBytes, config = null) {
-    const txString = toBase64(TxRaw.encode(bodyBytes).finish())
+  async simulate(msgs, memo = '', fee, config = null) {
+    const txString = toBase64(TxRaw.encode({
+      bodyBytes: TxBody.encode(
+        TxBody.fromPartial({
+          messages: msgs,
+          memo,
+        }),
+      ).finish(),
+      authInfoBytes: AuthInfo.encode({
+        signerInfos: [
+          SignerInfo.fromPartial({
+            modeInfo: {
+              single: {
+                mode: 127,
+              },
+              multi: undefined,
+            },
+            sequence: '0',
+          }),
+        ],
+        fee: Fee.fromPartial({
+          amount: [{ amount: fee.amount, denom: fee.denom }],
+        }),
+      }).finish(),
+      signatures: [new Uint8Array(64)],
+    }).finish())
     const txRaw = {
       tx_bytes: txString,
     }
-    return this.post('/lbm/tx/v1/simulate', txRaw, config)
+    const result = await this.post('/cosmos/tx/v1beta1/simulate', txRaw, config, true)
+
+    return result.gas_info.gas_used
   }
 
   // Tx Submit
@@ -414,7 +450,7 @@ export default class ChainFetch {
       tx_bytes: txString,
       mode: 'BROADCAST_MODE_SYNC', // BROADCAST_MODE_SYNC, BROADCAST_MODE_BLOCK, BROADCAST_MODE_ASYNC
     }
-    return this.post('/lbm/tx/v1/txs', txRaw, config).then(res => {
+    return this.post('/cosmos/tx/v1beta1/txs', txRaw, config, true).then(res => {
       if (res.code && res.code !== 0) {
         throw new Error(res.message)
       }
@@ -425,14 +461,15 @@ export default class ChainFetch {
     })
   }
 
-  async post(url = '', data = {}, config = null) {
+  async post(url = '', data = {}, config = null, useDsvApi = false) {
     if (!config) {
       this.getSelectedConfig()
     }
+    const apiKey = useDsvApi ? 'dsvApi' : 'api'
     const conf = config || this.config
     const index = this.getApiIndex(config)
     // Default options are marked with *
-    const response = await fetch((Array.isArray(conf.api) ? conf.api[index] : conf.api) + url, {
+    const response = await fetch((Array.isArray(conf[apiKey]) ? conf[apiKey][index] : conf[apiKey]) + url, {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
       // mode: 'cors', // no-cors, *cors, same-origin
       // credentials: 'same-origin', // redirect: 'follow', // manual, *follow, error

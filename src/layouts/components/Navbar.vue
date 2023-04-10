@@ -67,7 +67,7 @@
         </b-media-aside>
         <b-media-body class="my-auto">
           <h6 class="mb-0 ">
-            <span class="text-uppercase">{{ selected_chain.chain_name }}</span>
+            <span>{{ selected_chain.chain_name }}</span>
           </h6>
         </b-media-body>
       </b-media>
@@ -78,6 +78,71 @@
     <b-navbar-nav class="nav align-items-center ml-auto">
       <dark-Toggler class="d-none d-lg-block" />
       <search-bar />
+      <b-dropdown
+        v-if="isFinschiaSelected"
+        class="ml-1"
+        variant="link"
+        no-caret
+        toggle-class="p-0"
+        right
+      >
+
+        <template #button-content>
+          <b-button
+            v-ripple.400="'rgba(255, 255, 255, 0.15)'"
+            variant="primary"
+            class="btn-icon"
+          >
+            <feather-icon icon="KeyIcon" />
+            {{ walletName }}
+          </b-button>
+        </template>
+
+        <b-dropdown-item
+          v-for="(item,k) in accounts"
+          :key="k"
+          :disabled="!item.address"
+          @click="updateDefaultWallet(item.wallet)"
+        >
+          <div class="d-flex flex-column">
+            <div class="d-flex justify-content-between">
+              <span class="font-weight-bolder">
+                {{ item.wallet }}
+                <b-avatar
+                  v-if="item.wallet===walletName"
+                  variant="success"
+                  size="sm"
+                >
+                  <feather-icon icon="CheckIcon" />
+                </b-avatar>
+              </span>
+              <b-link :to="`/${selected_chain.chain_name}/account/${item.address.addr}`">
+                <feather-icon icon="ArrowRightIcon" />
+              </b-link>
+            </div>
+            <small>{{ item.address ? formatAddr(item.address.addr) : `Not available on ${selected_chain.chain_name}` }}</small>
+          </div>
+        </b-dropdown-item>
+        <b-dropdown-divider />
+        <connect-dosi-vault wrapper-component="b-dropdown-item" />
+        <b-dropdown-divider />
+
+        <b-dropdown-item :to="{ name: 'accounts' }">
+          <feather-icon
+            icon="KeyIcon"
+            size="16"
+          />
+          <span class="align-middle ml-50">Accounts</span>
+        </b-dropdown-item>
+
+        <b-dropdown-item :to="{ name: 'delegations' }">
+          <feather-icon
+            icon="BookOpenIcon"
+            size="16"
+          />
+          <span class="align-middle ml-50">My Delegations</span>
+        </b-dropdown-item>
+      </b-dropdown>
     </b-navbar-nav>
   </div>
 </template>
@@ -85,7 +150,8 @@
 <script>
 import { mapGetters } from 'vuex'
 import {
-  BLink, BNavbarNav, BMedia, BMediaAside, BAvatar, BMediaBody, VBTooltip,
+  BLink, BNavbarNav, BMedia, BMediaAside, BAvatar, BMediaBody, VBTooltip, BButton,
+  BDropdown, BDropdownItem, BDropdownDivider,
 } from 'bootstrap-vue'
 import Ripple from 'vue-ripple-directive'
 import DarkToggler from '@core/layouts/components/app-navbar/components/DarkToggler.vue'
@@ -94,6 +160,7 @@ import SearchBar from '@core/layouts/components/app-navbar/components/SearchBar.
 import { timeIn, toDay } from '@/libs/utils'
 import { getLocalAccounts } from '@/libs/local'
 // import UserDropdown from '@core/layouts/components/app-navbar/components/UserDropdown.vue'
+import ConnectDosiVault from '../../views/components/ConnectDosiVault/index.vue'
 
 export default {
   components: {
@@ -103,11 +170,16 @@ export default {
     BMedia,
     BMediaAside,
     BMediaBody,
+    BButton,
+    BDropdown,
+    BDropdownItem,
+    BDropdownDivider,
     // Navbar Components
     DarkToggler,
     SearchBar,
     // CartDropdown,
     // UserDropdown,
+    ConnectDosiVault,
   },
   directives: {
     'b-tooltip': VBTooltip,
@@ -127,9 +199,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'mode',
-    ]),
+    ...mapGetters({
+      mode: 'mode',
+      isFinschiaSelected: 'chains/isFinschiaSelected',
+    }),
     walletName() {
       const key = this.$store?.state?.chains?.defaultWallet
       return key || 'Wallet'
@@ -147,6 +220,9 @@ export default {
 
       if (!this.$store.state.chains.defaultWallet && accounts.length > 0) {
         this.updateDefaultWallet(accounts[0].wallet)
+      }
+      if (accounts.findIndex(x => x.wallet === this.walletName) < 0 && this.walletName !== 'Wallet') {
+        this.updateDefaultWallet(null)
       }
       return accounts
     },

@@ -85,6 +85,7 @@
 
 <script>
 import { ValidationProvider } from 'vee-validate'
+import { MsgDeposit } from 'cosmjs-types/cosmos/gov/v1beta1/tx'
 import {
   BRow, BCol, BInputGroup, BFormInput, BFormGroup, BFormSelect,
   BInputGroupAppend, BFormSelectOption,
@@ -94,6 +95,7 @@ import {
 } from '@validations'
 import { getUnitAmount } from '@/libs/utils'
 import { formatToken, formatTokenDenom } from '@/libs/formatter'
+import { operationalModal } from '@/@core/mixins/operational-modal'
 
 export default {
   name: 'DepositDialogue',
@@ -108,6 +110,7 @@ export default {
     BFormSelectOption,
     ValidationProvider,
   },
+  mixins: [operationalModal],
   props: {
     proposalId: {
       type: Number,
@@ -146,18 +149,21 @@ export default {
   },
   computed: {
     msg() {
+      const value = {
+        depositor: this.address,
+        proposalId: String(this.proposalId),
+        amount: [
+          {
+            amount: getUnitAmount(this.amount, this.token),
+            denom: this.token,
+          },
+        ],
+      }
+
       return [{
-        typeUrl: '/lbm.gov.v1.MsgDeposit',
-        value: {
-          depositor: this.address,
-          proposalId: String(this.proposalId),
-          amount: [
-            {
-              amount: getUnitAmount(this.amount, this.token),
-              denom: this.token,
-            },
-          ],
-        },
+        typeUrl: '/cosmos.gov.v1beta1.MsgDeposit',
+        value,
+        encodedValue: MsgDeposit.fromPartial(value),
       }]
     },
     balanceOptions() {

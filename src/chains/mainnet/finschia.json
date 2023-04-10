@@ -5,18 +5,29 @@
         "beta": ["https://lbs-finschia.line-apps-beta.com"],
         "prod": ["https://lbs-finschia.line-apps.com"]
     },
+    "dsvApi": {
+        "alpha": ["https://dsvt-finschia.line-apps-alpha.com"],
+        "beta": ["https://dsvt-finschia.line-apps-beta.com"],
+        "prod": ["https://dsvt-finschia.line-apps.com"]
+    },
+    "dsvRpc": {
+        "alpha": ["https://dsvt-finschia-api.line-apps-alpha.com"],
+        "beta": ["https://dsvt-finschia-api.line-apps-beta.com"],
+        "prod": ["https://dsvt-finschia-api.line-apps.com"]
+    },
     "sdk_version": {
         "alpha": "0.5",
         "beta": "0.5",
         "prod": "0.5"
     },
     "coin_type": "438",
-    "min_tx_fee": "8000",
+    "min_tx_fee": "0.00375",
+    "min_gas_price": "0.000000015",
     "assets": [{
         "base": "cony",
         "symbol": "LINK(LN)",
         "exponent": "6",
-        "coingecko_id": "",
+        "coingecko_id": "link",
         "logo": "https://www.line-website.com/link-scan-front-release/img/209a6fff584a69cc9183901efff475ff.png"
     }],
     "addr_prefix": "link",

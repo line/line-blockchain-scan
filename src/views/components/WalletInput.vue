@@ -15,30 +15,10 @@
       >
         <b-form-radio
           name="wallet"
-          value="keplr"
+          value="dosiVault"
           class="d-none d-md-block"
         >
-          Keplr
-        </b-form-radio>
-        <b-form-radio
-          name="wallet"
-          value="pingKMS"
-          class="d-none d-md-block"
-        >
-          Ping Signer
-        </b-form-radio>
-        <b-form-radio
-          name="wallet"
-          value="ledgerUSB"
-        >
-          Ledger (USB)
-        </b-form-radio>
-        <b-form-radio
-          name="wallet"
-          value="ledgerBle"
-          class="mr-0"
-        >
-          Ledger (Bluetooth)
+          DOSI Vault
         </b-form-radio>
       </b-form-radio-group>
       <small class="text-danger">{{ errors[0] }}</small>
@@ -64,7 +44,7 @@ export default {
   props: {
     value: {
       type: String,
-      default: 'keplr',
+      default: 'dosiVault',
     },
   },
   data() {

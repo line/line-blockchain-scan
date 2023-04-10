@@ -86,3 +86,12 @@ export default {
   },
 }
 </script>
+
+<style>
+[dir=ltr] .collapse-icon [aria-expanded=false]:after {
+  transform: none;
+}
+[dir=ltr] .collapse-icon [aria-expanded=true]:after {
+  transform: rotate(-180deg);
+}
+</style>

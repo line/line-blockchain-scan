@@ -15,8 +15,7 @@ import utc from 'dayjs/plugin/utc'
 import RIPEMD160 from 'ripemd160'
 import localeData from 'dayjs/plugin/localeData'
 import { $themeColors } from '@themeConfig'
-// import { SigningStargateClient } from '@cosmjs/stargate'
-import PingWalletClient from './data/signing'
+import { SigningStargateClient } from '@cosmjs/stargate'
 import { getLocalChains, getLocalAccounts } from './local'
 
 dayjs.extend(localeData)
@@ -182,23 +181,19 @@ export async function sign(device, chainId, signerAddress, messages, fee, memo, 
       }
       signer = window.PingSigner
       break
-    case 'keplr':
+    case 'dosiVault':
     default:
-      if (!window.getOfflineSigner || !window.keplr) {
-        throw new Error('Please install keplr extension')
+      if (!window.dosiVault || !window.dosiVault.getOfflineSigner) {
+        throw new Error('Please install DOSI Vault extension')
       }
-      await window.keplr.enable(chainId)
+      await window.dosiVault.enable(chainId)
       // signer = window.getOfflineSigner(chainId)
-      signer = window.getOfflineSignerOnlyAmino(chainId)
+      signer = window.dosiVault.getOfflineSignerOnlyAmino(chainId)
   }
 
-  // if (signer) return signAmino(signer, signerAddress, messages, fee, memo, signerData)
-
-  // Ensure the address has some tokens to spend
-  const client = await PingWalletClient.offline(signer)
-  // const client = await SigningStargateClient.offline(signer)
-  return client.signAmino2(device.startsWith('ledger') ? toSignAddress(signerAddress) : signerAddress, messages, fee, memo, signerData)
-  // return signDirect(signer, signerAddress, messages, fee, memo, signerData)
+  const client = await SigningStargateClient.offline(signer)
+  const addr = device.startsWith('ledger') ? toSignAddress(signerAddress) : signerAddress
+  return client.sign(addr, messages, fee, memo, signerData)
 }
 
 export async function getLedgerAddress(transport = 'blu', hdPath = "m/44'/438/0'/0/0") {
@@ -270,6 +265,9 @@ export function abbrMessage(msg) {
       output.push(sum[k] > 1 ? `${k}×${sum[k]}` : k)
     })
     return output.join(', ')
+  }
+  if (msg['@type']) {
+    return msg['@type'].substring(msg['@type'].lastIndexOf('.') + 1).replace('Msg', '')
   }
   if (msg.typeUrl) {
     return msg.typeUrl.substring(msg.typeUrl.lastIndexOf('.') + 1).replace('Msg', '')

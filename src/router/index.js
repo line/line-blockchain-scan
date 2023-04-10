@@ -24,6 +24,11 @@ const router = new VueRouter({
       component: () => import('@/views/TermsOfService.vue'),
     },
     {
+      path: '/tos_staking',
+      name: 'tos-staking',
+      component: () => import('@/views/TermsOfServiceStaking.vue'),
+    },
+    {
       path: '/coffee',
       name: 'coffee',
       component: () => import('@core/layouts/components/Coffee.vue'),
@@ -183,10 +188,10 @@ const router = new VueRouter({
       name: 'staking',
       component: () => import('@/views/Staking.vue'),
       meta: {
-        pageTitle: 'Staking',
+        pageTitle: 'Staking (Beta)',
         breadcrumb: [
           {
-            text: 'Staking',
+            text: 'Staking (Beta)',
             active: true,
           },
         ],
@@ -200,7 +205,7 @@ const router = new VueRouter({
         pageTitle: 'Staking Validator',
         breadcrumb: [
           {
-            text: 'Staking',
+            text: 'Staking (Beta)',
             active: true,
           },
           {

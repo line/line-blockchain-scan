@@ -110,12 +110,14 @@ import {
   BRow, BCol, BInputGroup, BFormInput, BFormGroup,
   BInputGroupAppend,
 } from 'bootstrap-vue'
+import { MsgBeginRedelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx'
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import { getUnitAmount } from '@/libs/utils'
 import { formatToken, formatTokenDenom } from '@/libs/formatter'
 import vSelect from 'vue-select'
+import { operationalModal } from '@/@core/mixins/operational-modal'
 
 export default {
   name: 'Redelegate',
@@ -129,6 +131,7 @@ export default {
     BInputGroupAppend,
     ValidationProvider,
   },
+  mixins: [operationalModal],
   props: {
     validatorAddress: {
       type: String,
@@ -182,17 +185,19 @@ export default {
       return this.delegations.filter(x => x.delegation.validator_address === this.validatorAddress).map(x => ({ value: x.balance.denom, label: formatToken(x.balance) }))
     },
     msg() {
-      return [{
-        typeUrl: '/lbm.staking.v1.MsgBeginRedelegate',
-        value: {
-          delegatorAddress: this.address,
-          validatorSrcAddress: this.validatorAddress,
-          validatorDstAddress: this.toValidator,
-          amount: {
-            amount: getUnitAmount(this.amount, this.token),
-            denom: this.token,
-          },
+      const value = {
+        delegatorAddress: this.address,
+        validatorSrcAddress: this.validatorAddress,
+        validatorDstAddress: this.toValidator,
+        amount: {
+          amount: getUnitAmount(this.amount, this.token),
+          denom: this.token,
         },
+      }
+      return [{
+        typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
+        value,
+        encodedValue: MsgBeginRedelegate.encode(value).finish(),
       }]
     },
   },

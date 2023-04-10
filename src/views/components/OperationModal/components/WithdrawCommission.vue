@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { operationalModal } from '@/@core/mixins/operational-modal'
 import {
   BRow,
   BCol,
@@ -26,6 +27,7 @@ import {
   BFormInput,
   BFormGroup,
 } from 'bootstrap-vue'
+import { MsgWithdrawDelegatorReward, MsgWithdrawValidatorCommission } from 'cosmjs-types/cosmos/distribution/v1beta1/tx'
 
 export default {
   name: 'WithdrawCommissionDialogue',
@@ -37,6 +39,7 @@ export default {
     BFormGroup,
 
   },
+  mixins: [operationalModal],
   props: {
     address: {
       type: String,
@@ -54,19 +57,24 @@ export default {
   },
   computed: {
     msg() {
+      const rewardValue = {
+        delegatorAddress: this.address,
+        validatorAddress: this.validatorAddress,
+      }
+      const commissionValue = {
+        validatorAddress: this.validatorAddress,
+      }
+
       return [
         {
-          typeUrl: '/lbm.distribution.v1.MsgWithdrawDelegatorReward',
-          value: {
-            delegatorAddress: this.address,
-            validatorAddress: this.validatorAddress,
-          },
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          value: rewardValue,
+          encodedValue: MsgWithdrawDelegatorReward.encode(rewardValue).finish(),
         },
         {
-          typeUrl: '/lbm.distribution.v1.MsgWithdrawValidatorCommission',
-          value: {
-            validatorAddress: this.validatorAddress,
-          },
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission',
+          value: commissionValue,
+          encodedValue: MsgWithdrawValidatorCommission.encode(commissionValue).finish(),
         },
       ]
     },

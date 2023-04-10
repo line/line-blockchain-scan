@@ -46,7 +46,7 @@
         </small>
       </div>
       <div
-        v-for="d in data.val_commission"
+        v-for="d in data.val_commission && data.val_commission.commission"
         :key="d.amount"
         class="transaction-item"
       >

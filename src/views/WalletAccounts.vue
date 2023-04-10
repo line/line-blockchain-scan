@@ -76,7 +76,7 @@
     </b-card>
 
     <div
-      v-for="item,index in accounts"
+      v-for="item,index in sortedAccounts"
       :key="index"
     >
       <div>
@@ -103,6 +103,14 @@
               />
               <span class="align-middle">Edit</span>
             </router-link>
+            <b-button
+              variant="flat-danger"
+              size="sm"
+              @click="disconnect(item.name)"
+            >
+              <feather-icon icon="EyeOffIcon" />
+              <span class="align-middle">Disconnect</span>
+            </b-button>
           </div>
         </div>
 
@@ -221,13 +229,10 @@
         </b-row>
       </div>
     </div>
-
-    <router-link to="/wallet/import">
-      <b-card class="addzone">
-        <feather-icon icon="PlusIcon" />
-        Connect Wallet
-      </b-card>
-    </router-link>
+    <connect-dosi-vault
+      wrapper-component="b-card"
+      :wrapper-props="{ class: 'addzone text-primary' }"
+    />
     <operation-modal
       :type="operationModalType"
       :address="selectedAddress"
@@ -256,6 +261,7 @@ import AppCollapseItem from '@core/components/app-collapse/AppCollapseItem.vue'
 import OperationModal from '@/views/components/OperationModal/index.vue'
 import ChartComponentDoughnut from './ChartComponentDoughnut.vue'
 import EchartScatter from './components/charts/EchartScatter.vue'
+import ConnectDosiVault from './components/ConnectDosiVault/index.vue'
 
 export default {
   components: {
@@ -279,6 +285,7 @@ export default {
     AppCollapseItem,
     EchartScatter,
     OperationModal,
+    ConnectDosiVault,
   },
   directives: {
     'b-tooltip': VBTooltip,
@@ -292,7 +299,7 @@ export default {
       selectedAddress: '',
       selectedName: '',
       transferWindow: false,
-      accounts: [],
+      accounts: {},
       balances: {},
       delegations: {},
       ibcDenom: {},
@@ -437,6 +444,18 @@ export default {
           },
         ],
       }
+    },
+    sortedAccounts() {
+      if (!this.accounts) {
+        return {}
+      }
+
+      return Object.keys(this.accounts)
+        .sort()
+        .reduce((result, key) => ({
+          ...result,
+          [key]: this.accounts[key],
+        }), {})
     },
   },
   created() {
@@ -594,12 +613,22 @@ export default {
         const item = this.accounts[key]
         const newAddrs = item.address.filter(a => a.addr !== v)
         if (newAddrs.length > 0) {
+          this.$delete(this.balances, v)
+          this.$delete(this.delegations, v)
           this.$set(item, 'address', newAddrs)
+          localStorage.setItem('accounts', JSON.stringify(this.accounts))
         } else {
           delete this.accounts[key]
+          localStorage.setItem('accounts', JSON.stringify(this.accounts))
+          this.init()
         }
       })
       localStorage.setItem('accounts', JSON.stringify(this.accounts))
+    },
+    disconnect(key) {
+      delete this.accounts[key]
+      localStorage.setItem('accounts', JSON.stringify(this.accounts))
+      this.init()
     },
     updateDefaultWallet(v) {
       this.$store.commit('setDefaultWallet', v)

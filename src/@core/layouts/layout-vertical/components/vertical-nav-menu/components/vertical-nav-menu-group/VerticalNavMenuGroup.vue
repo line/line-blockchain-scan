@@ -38,7 +38,7 @@
         class="mr-1"
       />
 
-      <span class="menu-title text-truncate text-uppercase">{{ item.title }}</span>
+      <span class="menu-title text-truncate">{{ item.title }}</span>
       <b-badge
         v-if="item.tag"
         pill

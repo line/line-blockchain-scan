@@ -85,10 +85,12 @@ import {
   BRow, BCol, BFormGroup, BFormInput,
   BFormRadio,
 } from 'bootstrap-vue'
+import { MsgVote } from 'cosmjs-types/cosmos/gov/v1beta1/tx'
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import { formatToken } from '@/libs/formatter'
+import { operationalModal } from '@/@core/mixins/operational-modal'
 
 export default {
   name: 'VoteDialogue',
@@ -100,6 +102,7 @@ export default {
     ValidationProvider,
     BFormInput,
   },
+  mixins: [operationalModal],
   props: {
     proposalId: {
       type: Number,
@@ -133,13 +136,15 @@ export default {
   },
   computed: {
     msg() {
+      const value = {
+        voter: this.address,
+        proposalId: this.proposalId,
+        option: Number(this.option),
+      }
       return [{
-        typeUrl: '/lbm.gov.v1.MsgVote',
-        value: {
-          voter: this.address,
-          proposalId: this.proposalId,
-          option: Number(this.option),
-        },
+        typeUrl: '/cosmos.gov.v1beta1.MsgVote',
+        value,
+        encodedValue: MsgVote.encode(value).finish(),
       }]
     },
   },

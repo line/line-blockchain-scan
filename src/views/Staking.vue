@@ -60,7 +60,7 @@
             class="d-flex flex-column"
           >
             <span class="font-weight-bold mb-0">{{ tokenFormatter(data.item.tokens, stakingParameters.bond_denom) }}</span>
-            <span class="font-small-2 text-muted text-nowrap d-none d-lg-block">{{ percent(data.item.tokens/stakingPool) }}%</span>
+            <span class="font-small-2 text-muted text-nowrap d-none d-lg-block">{{ percent(data.item.votingPower) }}%</span>
           </div>
           <span v-else>{{ data.item.delegator_shares }}</span>
         </template>
@@ -93,20 +93,48 @@
       no-body
     >
       <b-card-header class="d-flex justify-content-between">
-        <b-form-group class="mb-0">
-          <b-form-radio-group
-            id="btn-radios-1"
-            v-model="selectedStatus"
-            button-variant="outline-primary"
-            :options="statusOptions"
-            buttons
-            name="radios-btn-default"
-            @change="getValidatorListByStatus"
-          />
-        </b-form-group>
-        <b-card-title class="d-none d-sm-block">
-          <span>Validators {{ validators.length }}/{{ stakingParameters.max_validators }} </span>
-        </b-card-title>
+        <b-media
+          no-body
+          class="d-flex align-items-center"
+        >
+          <b-media-aside
+            class="mr-2 align-self-center"
+          >
+            <b-avatar
+              size="48"
+              variant="light-primary"
+            >
+              <feather-icon
+                size="24"
+                icon="TrendingUpIcon"
+              />
+            </b-avatar>
+          </b-media-aside>
+          <b-media-body class="my-auto">
+            <b-card-text class="font-small-3 mb-0 text-capitalize">
+              ARR
+              <span
+                v-b-tooltip.hover.top="'Annual Reward Rate'"
+                class="circle-icon"
+              />
+            </b-card-text>
+            <h4 class="font-weight-bolder mb-0 text-primary">
+              {{ aprPretty }}
+            </h4>
+          </b-media-body>
+          <div class="vr border-left border-light ml-3 mr-3" />
+          <div class="my-auto">
+            <p class="font-small-3 mb-0">
+              • A 5% commission fee from user's reward will be charged to each and every validator
+            </p>
+            <p class="font-small-3 mb-0">
+              • Regardless of which validator you choose, there will be no difference in the expected annual reward rate (i.e., ARR)
+            </p>
+            <p class="font-small-3 mb-0">
+              • The final rate of return may vary depending on the user’s decision (i.e., staking period, frequency of reward restakes, etc.)
+            </p>
+          </div>
+        </b-media>
       </b-card-header>
       <b-card-body class="pl-0 pr-0 pb-0">
         <b-table
@@ -168,7 +196,7 @@
               class="d-flex flex-column"
             >
               <span class="font-weight-bold mb-0">{{ tokenFormatter(data.item.tokens, stakingParameters.bond_denom) }}</span>
-              <span class="font-small-2 text-muted text-nowrap d-none d-lg-block">{{ percent(data.item.tokens/stakingPool) }}%</span>
+              <span class="font-small-2 text-muted text-nowrap d-none d-lg-block">{{ percent(data.item.votingPower) }}%</span>
             </div>
             <span v-else>{{ data.item.delegator_shares }}</span>
           </template>
@@ -185,15 +213,22 @@
             >{{ data.item.changes }}</small>
           </template>
           <template #cell(operation)="data">
-            <b-button
-              v-b-modal.operation-modal
-              :name="data.item.operator_address"
-              variant="primary"
-              size="sm"
-              @click="selectValidator(data.item.operator_address)"
+            <span
+              v-b-tooltip.top.html="isOverVotingPower(data.item.votingPower) ? 'Temporarily unavailable <br>(Voting Power exceeds 25%)' : ''"
+              class="d-inline-block"
+              tabindex="0"
             >
-              Delegate
-            </b-button>
+              <b-button
+                v-b-modal.operation-modal
+                :name="data.item.operator_address"
+                variant="primary"
+                size="sm"
+                :disabled="isOverVotingPower(data.item.votingPower)"
+                @click="selectValidator(data.item.operator_address)"
+              >
+                Delegate
+              </b-button>
+            </span>
           </template>
         </b-table>
       </b-card-body>
@@ -210,6 +245,29 @@
         </small>
       </template>
     </b-card>
+    <b-card>
+      Please note that this is a beta version of the staking program which is still undergoing final testing before its official release.<br>
+      <br>
+      1. Please read the Terms of Service referred to below on this Website before using this program.<br>
+      2. Users can delegate their LINKs to up to 8 validators.<br>
+      3. Each validator has a moniker starting with the letters F, I, N, S, C, H, I, and A.<br>
+      4. Mainnet policy aims to avoid excessive concentration of delegations to certain validators.<br>
+      5. If a validator’s voting power exceeds 25%, users will be restricted from delegating their LINKs to the said validator.<br>
+      6. In the event of unstaking, the staked LINKs will be unstaked (undelegated) 24 hours after the users made such request.<br>
+      <br>
+      Policy stated above is subject to change once the official program is implemented. The staking program (beta), including its software and all content found on this website are provided on an “as is” and “as available” basis. We do not give any warranties, whether express or implied, as to the suitability or usability of the website, its software or any of its content.<br>
+      <br>
+      <a
+        href="https://lin.ee/M4MaMZT/bofu"
+        target="_blank"
+      >
+        ☞ Guide for LINK(LN) Staking
+      </a>
+    </b-card>
+    * Your use of this website and service is entirely at your own risk. By continuing to access or use the webiste or any service provided herein, you confirm your agreement to these
+    <router-link to="/tos_staking">
+      terms.
+    </router-link>
     <operation-modal
       type="Delegate"
       :validator-address="validator_address"
@@ -220,11 +278,10 @@
 
 <script>
 import {
-  BTable, BMedia, BAvatar, BBadge, BCard, BCardHeader, BCardTitle, VBTooltip, BCardBody, BButton, BFormRadioGroup, BFormGroup,
+  BTable, BMedia, BMediaAside, BMediaBody, BAvatar, BBadge, BCard, BCardText, BCardHeader, VBTooltip, BCardBody, BButton,
 } from 'bootstrap-vue'
-import {
-  percent, StakingParameters,
-} from '@/libs/utils'
+import { validators } from '@/@core/mixins/validators'
+import { percent } from '@/libs/utils'
 import { formatToken } from '@/libs/formatter'
 import { keybase } from '@/libs/fetch'
 import OperationModal from '@/views/components/OperationModal/index.vue'
@@ -236,27 +293,24 @@ export default {
     BCard,
     BTable,
     BMedia,
+    BMediaAside,
+    BMediaBody,
     BAvatar,
     BBadge,
+    BCardText,
     BCardHeader,
-    BCardTitle,
     BCardBody,
     BButton,
-    BFormRadioGroup,
-    BFormGroup,
     OperationModal,
   },
   directives: {
     'b-tooltip': VBTooltip,
   },
+  mixins: [validators],
   data() {
     return {
       islive: true,
       validator_address: null,
-      mintInflation: 0,
-      stakingPool: 1,
-      stakingParameters: new StakingParameters(),
-      validators: [],
       delegations: [],
       changes: {},
       latestPower: {},
@@ -294,10 +348,7 @@ export default {
           thClass: 'text-right',
         },
       ],
-      statusOptions: [
-        { text: 'Active', value: 'active' },
-        { text: 'Inactive', value: 'inactive' },
-      ],
+      statusOptions: [],
       selectedStatus: 'active',
       isInactiveLoaded: false,
       inactiveValidators: [],
@@ -308,7 +359,7 @@ export default {
       return this.list.filter(x => x.description.identity === '6783E9F948541962')
     },
     list() {
-      const tab = this.selectedStatus === 'active' ? this.validators : this.inactiveValidators
+      const tab = this.selectedStatus === 'active' ? this.decoratedValidators : this.inactiveValidators
       return tab.map(x => {
         const xh = x
         if (Object.keys(this.latestPower).length > 0 && Object.keys(this.previousPower).length > 0) {
@@ -321,13 +372,7 @@ export default {
     },
   },
   created() {
-    this.$http.getStakingPool().then(pool => {
-      this.stakingPool = pool.bondedToken
-    })
     // set
-    this.$http.getStakingParameters().then(res => {
-      this.stakingParameters = res
-    })
     this.initial()
   },
   beforeDestroy() {
@@ -452,7 +497,7 @@ export default {
           if (Array.isArray(d.them) && d.them.length > 0) {
             const pic = d.them[0].pictures
             if (pic) {
-              const list = this.selectedStatus === 'active' ? this.validators : this.inactiveValidators
+              const list = this.selectedStatus === 'active' ? this.decoratedValidators : this.inactiveValidators
               const validator = list.find(u => u.description.identity === identity)
               this.$set(validator, 'avatar', pic.primary.url)
               this.$store.commit('cacheAvatar', { identity, url: pic.primary.url })
@@ -464,3 +509,27 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.circle-icon {
+  margin-bottom: -2px;
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 1px solid;
+  position: relative;
+}
+.circle-icon::before {
+  content: "?";
+  font-size: 0.6rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.vr {
+  height: 50px;
+  width: 1px
+}
+</style>
