@@ -69,7 +69,7 @@ export const validators = {
       if (this.totalSupply.isZero()) {
         return new BigNumber(0)
       }
-      return this.bondedToken.div(this.totalSupply)
+      return BigNumber(this.stakingPool).div(this.totalSupply)
     },
     apr() {
       if (this.bondedRatio.isZero()) {

@@ -50,14 +50,14 @@ const linkMenus = [
     header: 'Links',
   },
   {
-    title: 'LINE Blockchain Site',
+    title: 'Finschia Site',
     logo: '/icon/blockchain.png',
-    href: 'https://blockchain.line.me/',
+    href: 'https://finschia.network',
   },
   {
     title: 'faq',
     logo: '/icon/faq.png',
-    href: 'https://blockchain.line.me/faq-2',
+    href: 'https://finschia.network/faq',
   },
   {
     title: 'tos',
