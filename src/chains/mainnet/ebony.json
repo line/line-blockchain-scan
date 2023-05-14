@@ -1,19 +1,19 @@
 {
     "chain_name": "Ebony Testnet",
     "api": {
-        "alpha": ["https://lbs-ebony.line-apps-alpha.com"],
-        "beta": ["https://lbs-ebony.line-apps-beta.com"],
-        "prod": ["https://lbs-ebony.line-apps.com"]
+        "alpha": ["https://lbs-ebonynw.line-apps-alpha.com"],
+        "beta": ["https://lbs-ebonynw.line-apps-beta.com"],
+        "prod": ["https://lbs-ebonynw.line-apps.com"]
     },
     "dsvApi": {
-        "alpha": ["https://dsvt-ebony.line-apps-alpha.com"],
-        "beta": ["https://dsvt-ebony.line-apps-beta.com"],
-        "prod": ["https://dsvt-ebony.line-apps.com"]
+        "alpha": ["https://dsvt-ebonynw.line-apps-alpha.com"],
+        "beta": ["https://dsvt-ebonynw.line-apps-beta.com"],
+        "prod": ["https://dsvt-ebonynw.line-apps.com"]
     },
     "dsvRpc": {
-        "alpha": ["https://lbs-ebony.line-apps-alpha.com"],
-        "beta": ["https://lbs-ebony.line-apps-beta.com"],
-        "prod": ["https://lbs-ebony.line-apps.com"]
+        "alpha": ["https://lbs-ebonynw.line-apps-alpha.com"],
+        "beta": ["https://lbs-ebonynw.line-apps-beta.com"],
+        "prod": ["https://lbs-ebonynw.line-apps.com"]
     },
     "sdk_version": {
         "alpha": "0.5",
@@ -24,7 +24,7 @@
     "min_tx_fee": "8000",
     "assets": [{
         "base": "tcony",
-        "symbol": "Test LINK(TLN)",
+        "symbol": "Test LINK(TFNSA)",
         "exponent": "6",
         "coingecko_id": "",
         "logo": "https://www.line-website.com/link-scan-front-release/img/209a6fff584a69cc9183901efff475ff.png"

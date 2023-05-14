@@ -23,6 +23,7 @@
  * @LastEditors: Thang Pham
  * @LastEditTime: 2022-09-16 11:50:00
  */
+import { getLocalChains } from '@/libs/local'
 import { isTestnet } from '@/libs/utils'
 import { sha256 } from '@cosmjs/crypto'
 import { toHex } from '@cosmjs/encoding'
@@ -70,6 +71,8 @@ export default {
     defaultWallet: localStorage.getItem('default-wallet'),
     denoms: {},
     ibcPaths: {},
+    isFetchingDenomsMetadata: false,
+    selectedChainDenomsMetadata: {},
   },
   getters: {
     getchains: state => state.chains,
@@ -109,6 +112,49 @@ export default {
     },
     setIBCPaths(state, paths) {
       state.ibcPaths = paths
+    },
+    setIsFetchingDenomsMetadata(state, val) {
+      state.isFetchingDenomsMetadata = val
+    },
+    setDenomsMetadata(state, denomsMetadata) {
+      state.selectedChainDenomsMetadata = denomsMetadata
+      const localChains = getLocalChains()
+      const selectedChainName = state.selected.chain_name
+      if (localChains[selectedChainName]) {
+        const selectedChain = localChains[selectedChainName]
+        if (denomsMetadata.metadatas) {
+          if (denomsMetadata.metadatas.length) {
+            const metadata = denomsMetadata.metadatas[0]
+            const {
+              base, display, symbol, denom_units: denomUnits,
+            } = metadata
+
+            selectedChain.assets[0].base = base
+
+            // Make symbol format compatible with previous specs: https://wiki.linecorp.com/display/blockchain/LBS_v1.0.0_Task+List
+            switch (state.selected.chain_name) {
+              case 'Finschia Mainnet':
+                selectedChain.assets[0].symbol = `LINK(${symbol})`
+                break
+              case 'Ebony Testnet':
+                selectedChain.assets[0].symbol = `Test LINK(${symbol})`
+                break
+              default:
+                selectedChain.assets[0].symbol = symbol
+                break
+            }
+            if (denomUnits && denomUnits.length) {
+              const unit = denomUnits.find(item => item.denom === display)
+              if (unit) {
+                const { exponent } = unit
+                selectedChain.assets[0].exponent = exponent
+              }
+            }
+          }
+        }
+      }
+      localStorage.setItem('chains', JSON.stringify(localChains))
+      state.isFetchingDenomsMetadata = false
     },
   },
   actions: {
@@ -150,6 +196,13 @@ export default {
           context.commit('setIBCDenoms', denomsMap)
           context.commit('setIBCPaths', pathsMap)
         }
+      })
+    },
+    async getDenomsMetadata(context) {
+      context.commit('setIsFetchingDenomsMetadata', true)
+      return fetch(`${context.state.selected.api[0]}/cosmos/bank/v1beta1/denoms_metadata`).then(data => data.json()).then(data => {
+        context.commit('setDenomsMetadata', data)
+        return data
       })
     },
   },

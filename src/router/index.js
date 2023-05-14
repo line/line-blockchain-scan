@@ -350,6 +350,14 @@ const router = new VueRouter({
       },
     },
     {
+      path: '/error/maintenance',
+      name: 'maintenance',
+      component: () => import('@/views/error/Maintenance.vue'),
+      meta: {
+        layout: 'full',
+      },
+    },
+    {
       path: '/index.php',
       redirect: '/',
     },

@@ -370,9 +370,10 @@ export default {
           this.accountNumber = account.accountNumber
           this.sequence = account.sequence
         })
+        // Reference code: https://github.com/ping-pub/explorer/blob/d364eb4c1068b23debac63df568749202a648364/src/views/components/OperationModal/index.vue#L365
         this.$http.getBankBalances(this.selectedAddress, this.selectedChain).then(res => {
-          if (res && res.length > 0) {
-            this.balance = res.reverse()
+          if (res.balances && res.balances.length > 0) {
+            this.balance = res.balances.reverse()
             const token = this.balance.find(i => !i.denom.startsWith('ibc'))
             this.token = token.denom
             if (token) this.feeDenom = formatTokenDenom(token.denom)

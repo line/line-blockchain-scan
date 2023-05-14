@@ -4,7 +4,7 @@ import Token from './token'
 
 function denomConverter(msg) {
   const convertedDenom = {
-    tcony: 'TLN',
+    tcony: 'TFNSA',
     cony: 'LN',
   }
   const convertedKey = {
@@ -18,7 +18,7 @@ function denomConverter(msg) {
 
   const replaceDenom = denom => {
     if (Array.isArray(denom)) return denom.map(d => replaceDenom(d))
-    if (typeof denom === 'object') {
+    if (typeof denom === 'object' && denom !== null) {
       return Object.keys(denom).reduce((final, k) => {
         const title = findMatch(k, convertedKey)
         return {
@@ -46,7 +46,7 @@ export default class StdTx {
 
   static create(element, version = '0.40') {
     const self = new StdTx()
-    if (compareVersions(version, '0.40') < 1) {
+    if (compareVersions(version, '0.5') < 0) {
       self.type = element.type
       self.fee = element.value.fee.amount
       self.gas = element.value.fee.gas

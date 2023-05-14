@@ -19,6 +19,7 @@
 const path = require('path')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const productionGzipExtensions = ['js', 'css']
 
@@ -62,6 +63,11 @@ module.exports = {
         test: new RegExp(`\\.(${productionGzipExtensions.join('|')})$`),
         threshold: 8192,
         minRatio: 0.8,
+      }),
+      new HtmlWebpackPlugin({
+        inject: false,
+        template: './src/maintenance.html',
+        filename: 'maintenance.html',
       }),
     ],
     output: {

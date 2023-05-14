@@ -95,33 +95,35 @@
       <b-card-header class="d-flex justify-content-between">
         <b-media
           no-body
-          class="d-flex align-items-center"
+          class="d-flex media-arr"
         >
-          <b-media-aside
-            class="mr-2 align-self-center"
-          >
-            <b-avatar
-              size="48"
-              variant="light-primary"
+          <div class="d-flex">
+            <b-media-aside
+              class="mr-2"
             >
-              <feather-icon
-                size="24"
-                icon="TrendingUpIcon"
-              />
-            </b-avatar>
-          </b-media-aside>
-          <b-media-body class="my-auto">
-            <b-card-text class="font-small-3 mb-0 text-capitalize">
-              ARR
-              <span
-                v-b-tooltip.hover.top="'Annual Reward Rate'"
-                class="circle-icon"
-              />
-            </b-card-text>
-            <h4 class="font-weight-bolder mb-0 text-primary">
-              {{ aprPretty }}
-            </h4>
-          </b-media-body>
+              <b-avatar
+                size="48"
+                variant="light-primary"
+              >
+                <feather-icon
+                  size="24"
+                  icon="TrendingUpIcon"
+                />
+              </b-avatar>
+            </b-media-aside>
+            <b-media-body class="my-auto">
+              <b-card-text class="font-small-3 mb-0 text-capitalize">
+                Annual Reward Rate (ARR)
+                <span
+                  v-b-tooltip.hover.top="'This value is provided for reference only and might not guarantee your actual ARR.'"
+                  class="circle-icon"
+                />
+              </b-card-text>
+              <h4 class="font-weight-bolder mb-0 text-primary">
+                {{ aprPretty }}
+              </h4>
+            </b-media-body>
+          </div>
           <div class="vr border-left border-light ml-3 mr-3" />
           <div class="my-auto">
             <p class="font-small-3 mb-0">
@@ -131,7 +133,7 @@
               • Regardless of which validator you choose, there will be no difference in the expected annual reward rate (i.e., ARR)
             </p>
             <p class="font-small-3 mb-0">
-              • The final rate of return may vary depending on the user’s decision (i.e., staking period, frequency of reward restakes, etc.)
+              • The final rate of return may vary depending on the user's decision (i.e., staking period, frequency of reward restakes, etc.) and chain status(i.e., network latency, delay of block confirmation, etc.)
             </p>
           </div>
         </b-media>
@@ -509,6 +511,26 @@ export default {
   },
 }
 </script>
+
+<style lang="scss">
+@import '@core/scss/base/bootstrap-extended/_include'; // Bootstrap includes
+@include media-breakpoint-down(xs) {
+  .media-arr {
+    flex-direction: column;
+
+    .vr {
+      visibility: hidden;
+    }
+  }
+
+}
+
+@include media-breakpoint-up(sm) {
+  .media-arr, .media-arr .media-aside {
+    align-items: center !important;
+  }
+}
+</style>
 
 <style scoped>
 .circle-icon {

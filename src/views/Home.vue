@@ -182,7 +182,7 @@ export default {
         const index = localStorage.getItem(`${chain.chain_name}-api-index`) || 0
         if (chain.api) {
           const host = Array.isArray(chain.api) ? chain.api[index] : chain.api
-          fetch(`${host}/blocks/latest`).then(res => res.json()).then(b => {
+          fetch(`${host}/lbm/base/ostracon/v1/blocks/latest`).then(res => res.json()).then(b => {
             const { header } = b.block
             this.$set(chain, 'height', header.height)
             this.$set(chain, 'time', toDay(header.time))

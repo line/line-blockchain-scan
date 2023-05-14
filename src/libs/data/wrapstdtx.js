@@ -19,7 +19,7 @@ export default class WrapStdTx {
 
   static create(element, version = '0.40') {
     const self = new WrapStdTx()
-    if (compareVersions(version, '0.40') < 1) {
+    if (compareVersions(version, '0.5') < 0) {
       if (element.txhash) {
         self.code = element.code ? element.code : 0
         self.raw_log = element.raw_log

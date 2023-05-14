@@ -17,7 +17,7 @@
 -->
 
 <template>
-  <div>
+  <div v-if="!isFetchingDenomsMetadata">
     <b-alert
       variant="danger"
       :show="syncing"
@@ -31,7 +31,7 @@
         <summary-parmeters-component
           :data="decoratedChain"
           :row-attributes="{ class: isFinschiaSelected ? '' : 'justify-content-center' }"
-          :col-attributes="{ xl: isFinschiaSelected ? 3 : 4 }"
+          :col-attributes="{ xl: isFinschiaSelected ? 2 : 4 }"
         />
       </b-col>
     </b-row>
@@ -100,8 +100,9 @@ export default {
         items: [
           { subtitle: 'height', icon: 'BoxIcon', color: 'light-success' },
           { subtitle: 'supply_circulation', icon: 'DollarSignIcon', color: 'light-danger' },
-          { subtitle: 'bonded_ratio', icon: 'PercentIcon', color: 'light-warning' },
+          { subtitle: 'bonded', icon: 'PercentIcon', color: 'light-warning' },
           { subtitle: 'inflation', icon: 'TrendingUpIcon', color: 'light-primary' },
+          { subtitle: 'community_pool', icon: 'AwardIcon', color: 'light-success' },
         ],
       },
       mint: {
@@ -121,8 +122,10 @@ export default {
     decoratedChain() {
       const items = [...this.chain.items]
 
+      // Remove finschia-related items
       if (!this.isFinschiaSelected) {
-        items.splice(2, 1)
+        items.splice(4, 1) // remove `community_pool` item
+        items.splice(2, 1) // remove `bonded` item
       }
 
       return {
@@ -130,47 +133,65 @@ export default {
         items,
       }
     },
+    isFetchingDenomsMetadata() {
+      return this.$store.state.chains.isFetchingDenomsMetadata
+    },
   },
   created() {
-    this.$http.getLatestBlock().then(res => {
-      const height = this.chain.items.findIndex(x => x.subtitle === 'height')
+    // ensure getting denoms metadata first, then call other apis
+    this.$store.dispatch('chains/getDenomsMetadata').then(() => {
+      this.$http.getLatestBlock().then(res => {
+        const height = this.chain.items.findIndex(x => x.subtitle === 'height')
 
-      this.$set(this.chain, 'title', `Chain ID: ${res.block.header.chain_id}`)
-      this.$set(this.chain.items[height], 'title', res.block.header.height)
-      if (timeIn(res.block.header.time, 3, 'm')) {
-        this.syncing = true
-      } else {
-        this.syncing = false
-      }
-      this.latestTime = toDay(res.block.header.time, 'long')
-    })
+        this.$set(this.chain, 'title', `Chain ID: ${res.block.header.chain_id}`)
+        this.$set(this.chain.items[height], 'title', res.block.header.height)
+        if (timeIn(res.block.header.time, 3, 'm')) {
+          this.syncing = true
+        } else {
+          this.syncing = false
+        }
+        this.latestTime = toDay(res.block.header.time, 'long')
+      })
 
-    this.$http.getMarketChart().then(res => {
-      this.marketData = res
-    })
+      this.$http.getMarketChart().then(res => {
+        this.marketData = res
+      })
 
-    this.$http.getStakingParameters().then(res => {
-      const stakingParameters = { ...res }
-      if (stakingParameters.max_validators) {
-        delete stakingParameters.max_validators
-      }
-      this.staking = this.normalize(stakingParameters, 'Staking Parameters')
-      Promise.all([this.$http.getStakingPool(), this.$http.getBankTotal(res.bond_denom)])
-        .then(pool => {
-          const bondedAndSupply = this.chain.items.findIndex(x => x.subtitle === 'supply_circulation')
-          const tokenAmount = parseInt(formatTokenAmount(pool[1].amount, 0, stakingParameters.bond_denom, false), 10)
-          const bondedRatio = this.chain.items.findIndex(x => x.subtitle === 'bonded_ratio')
+      this.$http.getStakingParameters().then(res => {
+        const stakingParameters = { ...res }
+        if (stakingParameters.max_validators) {
+          delete stakingParameters.max_validators
+        }
+        this.staking = this.normalize(stakingParameters, 'Staking Parameters')
+        Promise.all([this.$http.getStakingPool(), this.$http.getBankTotal(res.bond_denom)])
+          .then(pool => {
+            const bondedAndSupply = this.chain.items.findIndex(x => x.subtitle === 'supply_circulation')
+            const tokenAmount = parseInt(formatTokenAmount(pool[1].amount, 0, stakingParameters.bond_denom, false), 10)
+            const bondedRatio = this.chain.items.findIndex(x => x.subtitle === 'bonded')
 
-          this.$set(this.chain.items[bondedRatio], 'title', `${percent(pool[0].bondedToken / pool[1].amount)}%`)
-          this.$set(this.chain.items[bondedAndSupply], 'title', tokenAmount.toLocaleString())
+            this.$set(this.chain.items[bondedRatio], 'title', `${percent(pool[0].bondedToken / pool[1].amount)}%`)
+            this.$set(this.chain.items[bondedRatio], 'subtitleData', formatTokenAmount(pool[0].bondedToken, 0, stakingParameters.bond_denom))
+            this.$set(this.chain.items[bondedAndSupply], 'title', tokenAmount.toLocaleString())
+          })
+      })
+      this.$http.getMintingInflation().then(res => {
+        const chainIndex = this.chain.items.findIndex(x => x.subtitle === 'inflation')
+        this.$set(this.chain.items[chainIndex], 'title', `${percent(res)}%`)
+      })
+      this.$http.getMintParameters().then(res => {
+        this.mint = this.normalize(res, 'Minting Parameters')
+      })
+
+      // Only getCommunityPool for Finschia
+      // Specs: https://wiki.linecorp.com/display/blockchain/LBS_v1.1.1_Policies#LBS_v1.1.1_Policies-TASK#1-Add'Community_pool'valueto'Summary'screen(onlyforFinschia)
+      if (this.isFinschiaSelected) {
+        this.$http.getCommunityPool().then(res => {
+          const formattedCommunityPoolAmountInDefaultDenom = formatTokenAmount(res.pool[0].amount, 0, res.pool[0].denom, true)
+
+          const communityPoolIndex = this.chain.items.findIndex(x => x.subtitle === 'community_pool')
+          this.$set(this.chain.items[communityPoolIndex], 'title', formattedCommunityPoolAmountInDefaultDenom)
         })
-    })
-    this.$http.getMintingInflation().then(res => {
-      const chainIndex = this.chain.items.findIndex(x => x.subtitle === 'inflation')
-      this.$set(this.chain.items[chainIndex], 'title', `${percent(res)}%`)
-    })
-    this.$http.getMintParameters().then(res => {
-      this.mint = this.normalize(res, 'Minting Parameters')
+      }
     })
   },
   methods: {

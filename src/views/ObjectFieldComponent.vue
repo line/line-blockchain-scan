@@ -28,6 +28,9 @@
         <b-td v-else-if="Array.isArray(value)">
           <array-field-component :tablefield="value" />
         </b-td>
+        <b-td v-else-if="value === null">
+          {{ 'null' }}
+        </b-td>
         <b-td
           v-else-if="typeof (value) ==='object'"
           hover

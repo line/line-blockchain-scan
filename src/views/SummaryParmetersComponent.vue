@@ -71,7 +71,7 @@
                 {{ item.title || '-' }}
               </h4>
               <b-card-text class="font-small-3 mb-1 text-capitalize">
-                {{ item.subtitle }}
+                {{ item.subtitle }}{{ item.subtitleData ? `: ${item.subtitleData}` : '' }}
               </b-card-text>
             </div>
           </b-media>

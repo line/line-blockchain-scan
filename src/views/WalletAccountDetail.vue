@@ -270,10 +270,10 @@
         </b-table>
 
         <b-pagination
-          v-if="Number(transactions.page_total) > 1"
-          :total-rows="transactions.total_count"
-          :per-page="transactions.limit"
-          :value="transactions.page_number"
+          v-if="pageTotal > 1"
+          :total-rows="totalCount"
+          :per-page="limit"
+          :value="pageNumber"
           align="center"
           class="mt-1"
           @change="pageload"
@@ -476,6 +476,8 @@ export default {
       stakingParameters: {},
       operationModalType: '',
       error: null,
+      limit: 20, // this value is inherited from getTxsBySenderLegacy when changing to new getTxsBySender; there is no specs for this value
+      offset: 0,
     }
   },
   computed: {
@@ -488,14 +490,27 @@ export default {
     },
     txs() {
       if (this.transactions.txs) {
-        return this.transactions.txs.map(x => ({
+        return this.transactions.tx_responses.map(x => ({
           height: Number(x.height),
           txhash: x.txhash,
-          msgs: abbrMessage(x.tx.msg ? x.tx.msg : x.tx.value.msg),
+          msgs: abbrMessage(x.tx.body.messages),
           time: toDay(x.timestamp),
         }))
       }
       return []
+    },
+    totalCount() {
+      if (!this.transactions || !this.transactions.pagination || !this.transactions.pagination.total) {
+        return 0
+      }
+      return Number(this.transactions.pagination.total)
+    },
+    pageTotal() {
+      return Math.ceil(this.totalCount / this.limit)
+    },
+    pageNumber() {
+      const pageNumber = Math.floor(this.offset / this.limit) + 1
+      return pageNumber
     },
     denoms() {
       return this.$store.state.chains.denoms
@@ -629,7 +644,7 @@ export default {
     address: {
       handler() {
         this.initial()
-        this.$http.getTxsBySenderLegacy(this.address).then(res => {
+        this.$http.getTxsBySender(this.address).then(res => {
           this.transactions = res
         })
         this.$http.getStakingParameters().then(res => {
@@ -647,6 +662,9 @@ export default {
   },
   methods: {
     initial() {
+      // Call getSelectedConfig to avoid error `TypeError: Cannot read properties of undefined (reading 'sdk_version')`
+      // because `this.config` is undefined
+      this.$http.getSelectedConfig()
       this.$http.getStakingUnbonding(this.address).then(res => {
         this.unbonding = res.unbonding_responses || res
       })
@@ -667,7 +685,8 @@ export default {
       return numberWithCommas(v)
     },
     pageload(v) {
-      this.$http.getTxsBySenderLegacy(this.address, v).then(res => {
+      this.offset = (v - 1) * this.limit
+      this.$http.getTxsBySender(this.address, this.offset, this.limit).then(res => {
         this.transactions = res
       })
     },

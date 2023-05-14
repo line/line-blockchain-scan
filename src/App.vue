@@ -115,6 +115,7 @@ export default {
     }
   },
   created() {
+    store.dispatch('chains/getDenomsMetadata')
     store.dispatch('chains/getQuotes')
   },
 }

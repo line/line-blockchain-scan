@@ -248,15 +248,18 @@ export default {
       const s = localStorage.getItem(`${conf.chain_name}-api-index`) || 0
       this.index = Number(s)
       this.$store.commit('setHeight', 0)
-      this.$http.getLatestBlock().then(block => {
-        this.$store.commit('setHeight', Number(block.block.header.height))
-        if (timeIn(block.block.header.time, 1, 'm')) {
-          this.variant = 'danger'
-          this.tips = `Halted ${toDay(block.block.header.time, 'from')}, Height: ${this.$store.state.chains.height} `
-        } else {
-          this.variant = 'success'
-          this.tips = 'Synced'
-        }
+      // each time selected chain is changed, get denoms metadata first, then call other apis
+      this.$store.dispatch('chains/getDenomsMetadata').then(() => {
+        this.$http.getLatestBlock().then(block => {
+          this.$store.commit('setHeight', Number(block.block.header.height))
+          if (timeIn(block.block.header.time, 1, 'm')) {
+            this.variant = 'danger'
+            this.tips = `Halted ${toDay(block.block.header.time, 'from')}, Height: ${this.$store.state.chains.height} `
+          } else {
+            this.variant = 'success'
+            this.tips = 'Synced'
+          }
+        })
       })
     },
   },

@@ -1,0 +1,53 @@
+<!--
+  Copyright (C) 2022 LINE Corporation
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <title>LINE Blockchain Scan</title>
+
+    <style>.misc-wrapper{display:flex;flex-basis:100%;min-height:100vh;width:100%;align-items:center;justify-content:center}.misc-wrapper .misc-inner{position:relative;max-width:750px}.misc-wrapper .brand-logo{display:flex;justify-content:center;position:absolute;top:2rem;left:2rem;margin:0}.misc-wrapper .brand-logo .brand-text{font-weight:600}.brand-logo svg{height:28px;width:40.95px}</style>
+    <link rel="stylesheet" type="text/css" href="/maintenance.css">
+  </head>
+  <body>
+    <div id="app" class="h-100">
+      <div>
+        <div class="misc-wrapper">
+          <a href="#" target="_self" class="brand-logo">
+            <img src="<%= require('./assets/images/logo/logo.svg') %>" alt="logo" class=""></a>
+          <div class="misc-inner p-2 p-sm-3">
+            <div class="w-100 text-center">
+              <h2 class="mb-1">System Maintenance 👷</h2>
+              <p class="mb-2">LINE Blockchain Scan is currently under maintenance. We apologize for the inconvenience.</p>
+              <img src="<%= require('./assets/images/pages/error.svg') %>" alt="Error page" class="img-fluid">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

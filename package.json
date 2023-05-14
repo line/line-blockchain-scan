@@ -1,8 +1,8 @@
 {
   "name": "line-blockchain-scan",
-  "version": "1.1.0-2",
+  "version": "1.1.1",
   "config": {
-    "qaVersion": "0"
+    "qaVersion": "3"
   },
   "author": "Blockchain FE VN <dl_blockchain_fe_vn@linecorp.com>",
   "private": true,
@@ -106,6 +106,7 @@
     "eslint": "6.8.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-vue": "6.2.2",
+    "html-webpack-plugin": "^4.0.0",
     "sass": "1.32.*",
     "sass-loader": "^10.1.0",
     "vue-template-compiler": "2.x",

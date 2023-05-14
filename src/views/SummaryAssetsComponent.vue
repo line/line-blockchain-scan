@@ -66,6 +66,9 @@ export default {
     },
   },
   created() {
+    // Call getSelectedConfig to avoid error `TypeError: Cannot read properties of undefined (reading 'sdk_version')`
+    // because `this.config` is undefined
+    this.$http.getSelectedConfig()
     this.$http.getBankTotals().then(res => {
       const toshow = res?.sort() || []
       this.assets = toshow?.reverse().map(x => {
@@ -84,7 +87,7 @@ export default {
       if (trace) {
         return `* ${formatTokenDenom(trace)}`
       }
-      return formatTokenDenom(v)
+      return formatTokenDenom(v, this.$store)
     },
   },
 }
