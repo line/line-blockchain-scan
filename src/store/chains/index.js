@@ -137,7 +137,9 @@ export default {
                 selectedChain.assets[0].symbol = `LINK(${symbol})`
                 break
               case 'Ebony Testnet':
-                selectedChain.assets[0].symbol = `Test LINK(${symbol})`
+                // https://line-enterprise.slack.com/archives/C03PCPW8LTF/p1681714815967099?thread_ts=1681704409.995699&cid=C03PCPW8LTF
+                // https://line-enterprise.slack.com/archives/C03PCPW8LTF/p1682589951294969?thread_ts=1682589119.778729&cid=C03PCPW8LTF
+                selectedChain.assets[0].symbol = `Test FINSCHIA(${symbol})`
                 break
               default:
                 selectedChain.assets[0].symbol = symbol
