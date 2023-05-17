@@ -47,6 +47,7 @@
             :balance="balance"
             :proposal-id="proposalId"
             :proposal-title="proposalTitle"
+            :fee-with-timestamp="{ fee, feeTimestamp }"
             @update="componentUpdate"
             @msg-change="handleMsgChange"
           />
@@ -312,6 +313,7 @@ export default {
       alphaDash,
 
       simulateDebounce: null,
+      feeTimestamp: 0,
     }
   },
   computed: {
@@ -389,16 +391,23 @@ export default {
         this[key] = obj[key]
       })
     },
-    async handleMsgChange(msg) {
+    async handleMsgChange(
+      msg,
+
+      // bypass is option for skipping the form simpleRules validation
+      // because it's neccessary to simulate the fee
+      // before actually filling the max amount in the `amount` field of Transfer, Delegate operations
+      bypass = false,
+    ) {
       const isValid = await this.$refs.simpleRules.validate({ silent: true })
-      if (!isValid) return
+      if (!isValid && !bypass) return
 
       const encodedMsg = msg.map(m => ({
         typeUrl: m.typeUrl,
         value: m.encodedValue,
       }))
 
-      if (msg.length > 0) {
+      if (msg.length > 0 && !bypass) { // `bypass` is when simulating to get the fee and therefore no need to set the default fee when doing this
         const defaultMinGasPrice = new BigNumber(this.$store.state.chains.selected?.min_gas_price)
         const defaultGasLimit = new BigNumber(DEFAULT_GAS).times(new BigNumber(msg.length))
         const defaultFee = defaultGasLimit.times(defaultMinGasPrice)
@@ -423,6 +432,7 @@ export default {
         const { amount: [{ amount, denom }], gas } = calculateFee(Math.round(gasLimit), minimumGasPrice)
         this.gas = gas
         this.fee = formatTokenAmount(amount)
+        this.feeTimestamp = Date.now() // store the timestamp to pass down to the child component to trigger the watcher, even the new fee is unchanged
         this.feeDenom = formatTokenDenom(denom)
 
         this.simulateDebounce = null

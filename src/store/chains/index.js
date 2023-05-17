@@ -134,12 +134,16 @@ export default {
             // Make symbol format compatible with previous specs: https://wiki.linecorp.com/display/blockchain/LBS_v1.0.0_Task+List
             switch (state.selected.chain_name) {
               case 'Finschia Mainnet':
-                selectedChain.assets[0].symbol = `LINK(${symbol})`
+                // This display coin unit format is eventually changed to use only the symbol in v1.1.2: https://wiki.linecorp.com/pages/viewpage.action?spaceKey=blockchain&title=LBS_v1.1.2_Overview
+                // but this switch case is reserved here just in case there are further modifications
+                selectedChain.assets[0].symbol = symbol
                 break
               case 'Ebony Testnet':
                 // https://line-enterprise.slack.com/archives/C03PCPW8LTF/p1681714815967099?thread_ts=1681704409.995699&cid=C03PCPW8LTF
                 // https://line-enterprise.slack.com/archives/C03PCPW8LTF/p1682589951294969?thread_ts=1682589119.778729&cid=C03PCPW8LTF
-                selectedChain.assets[0].symbol = `Test FINSCHIA(${symbol})`
+                // This display coin unit format is eventually changed to use only the symbol in v1.1.2: https://wiki.linecorp.com/pages/viewpage.action?spaceKey=blockchain&title=LBS_v1.1.2_Overview
+                // but this switch case is reserved here just in case there are further modifications
+                selectedChain.assets[0].symbol = symbol
                 break
               default:
                 selectedChain.assets[0].symbol = symbol

@@ -87,16 +87,26 @@
               <b-form-input
                 id="Amount"
                 v-model="amount"
-                :state="errors.length > 0 ? false:null"
+                :state="errors.length > 0 ? false : null"
                 placeholder="Input a number"
                 type="number"
+                @input="handleAmountInputChange"
               />
               <b-input-group-append is-text>
+                <max-clear-button-group
+                  @on-max-click="maximizeAmount"
+                  @on-clear-click="clearAmount"
+                />
                 {{ printDenom() }}
               </b-input-group-append>
             </b-input-group>
             <small class="text-danger">{{ errors[0] }}</small>
           </validation-provider>
+          <b-form-text
+            v-if="isMaxWarningShowed"
+          >
+            <span class="text-warning">The amount of tokens in your wallet will be zero. No transaction requests can be made after that. Please decide carefully.</span>
+          </b-form-text>
         </b-form-group>
       </b-col>
     </b-row>
@@ -107,17 +117,18 @@
 import { ValidationProvider } from 'vee-validate'
 import {
   BRow, BCol, BInputGroup, BFormInput, BFormGroup, BFormSelect, BFormSelectOption,
-  BInputGroupAppend,
+  BFormText, BInputGroupAppend,
 } from 'bootstrap-vue'
 import { MsgDelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx'
 import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import { getUnitAmount } from '@/libs/utils'
-import { formatToken, formatTokenDenom } from '@/libs/formatter'
+import { formatToken, formatTokenAmount, formatTokenDenom } from '@/libs/formatter'
 import vSelect from 'vue-select'
 import { operationalModal } from '@/@core/mixins/operational-modal'
 import { validators } from '@/@core/mixins/validators'
+import MaxClearButtonGroup from '../MaxClearButtonGroup.vue'
 
 export default {
   components: {
@@ -128,10 +139,11 @@ export default {
     BFormGroup,
     BFormSelect,
     BFormSelectOption,
+    BFormText,
     vSelect,
     BInputGroupAppend,
-
     ValidationProvider,
+    MaxClearButtonGroup,
   },
   mixins: [operationalModal, validators],
   props: {
@@ -146,6 +158,10 @@ export default {
     balance: {
       type: Array,
       default: () => [],
+    },
+    feeWithTimestamp: {
+      type: Object,
+      default: null,
     },
   },
   data() {
@@ -169,6 +185,8 @@ export default {
       digits,
       length,
       alphaDash,
+      isSimulating: false,
+      isMaxWarningShowed: false,
     }
   },
   computed: {
@@ -210,6 +228,13 @@ export default {
     IBCDenom() {
       return this.$store.state.chains.denoms
     },
+    maxAmountBeforeFeeInCoinMinimalDenom() {
+      const selectedBalance = this.balance.find(item => item.denom === this.token)
+      if (selectedBalance) {
+        return selectedBalance.amount
+      }
+      return 0
+    },
   },
   watch: {
     decoratedValidators() {
@@ -217,6 +242,21 @@ export default {
         return
       }
       this.selectedValidator = this.decoratedValidators[0].operator_address
+    },
+    feeWithTimestamp(newVal) {
+      const { fee } = newVal
+      const feeInCoinMinimalDenom = getUnitAmount(fee, this.token)
+      const maxAmountAfterFeeInCoinMinimalDenom = this.maxAmountBeforeFeeInCoinMinimalDenom - feeInCoinMinimalDenom
+      if (this.isSimulating) {
+        this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+        this.isSimulating = false
+        this.isMaxWarningShowed = true
+      }
+      if (this.isMaxWarningShowed) {
+        if (getUnitAmount(this.amount, this.token) > maxAmountAfterFeeInCoinMinimalDenom) {
+          this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+        }
+      }
     },
   },
   mounted() {
@@ -237,6 +277,9 @@ export default {
         this.token = this.balance[0].denom
         return this.balance
       }
+      if (this.$store) {
+        this.token = this.$store.state.chains.selected.assets[0].base
+      }
       return []
     },
     printDenom() {
@@ -245,10 +288,43 @@ export default {
     format(v) {
       return formatToken(v, this.IBCDenom, 6)
     },
+    clearAmount() {
+      this.isMaxWarningShowed = false
+      this.amount = null
+    },
+    // The amount used for MAX button
+    maximizeAmount() {
+      this.isSimulating = true
+      if (this.maxAmountBeforeFeeInCoinMinimalDenom) {
+        const value = {
+          delegatorAddress: this.selectedAddress,
+          validatorAddress: this.selectedValidator,
+          amount: {
+            amount: this.maxAmountBeforeFeeInCoinMinimalDenom,
+            denom: this.token,
+          },
+        }
+        const msg = [{
+          typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
+          value,
+          encodedValue: MsgDelegate.encode(value).finish(),
+        }]
+        const bypass = true // bypass the form validation check because we need to simulate before filling the value
+        this.$emit('msg-change', msg, bypass)
+      }
+    },
+    handleAmountInputChange() {
+      this.isMaxWarningShowed = false
+    },
   },
 }
 </script>
 
 <style lang="scss" scoped>
-
+#Amount {
+  z-index: 1;
+}
+.input-group-text {
+  position: relative;
+}
 </style>

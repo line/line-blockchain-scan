@@ -23,7 +23,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const productionGzipExtensions = ['js', 'css']
 
-const version = `${process.env.npm_package_version}.${process.env.npm_package_config_qaVersion}`
+const {
+  npm_package_version: appVersion,
+  npm_package_config_hotfixVersion: hotfixVersion,
+  npm_package_config_qaVersion: qaVersion,
+} = process.env
+
+const version = `${appVersion}.${hotfixVersion}.${qaVersion}`
 
 module.exports = {
   publicPath: '/',

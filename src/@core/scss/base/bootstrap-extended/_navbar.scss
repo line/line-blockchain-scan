@@ -73,12 +73,11 @@
 
   // static nav
   &.navbar-static-top {
-    top: 0;
-    right: 0;
-    left: $menu-expanded-width;
-    width: calc(100vw - (100vw - 100%) - #{$sidebar-width});
-    background: transparent;
-    box-shadow: none !important; // remove this if removing "menu-shadow" class
+    top: 28px;
+    left: calc(#{$menu-expanded-width} + 28px);
+    margin-bottom: 28px;
+    width: calc(100vw - (100vw - 100%) - #{$sidebar-width} - 56px);
+    box-shadow: 0 4px 24px 0 rgba(34,41,47,.1);
   }
 
   // add border to navbar
@@ -608,6 +607,13 @@
 
     .navbar-container ul.navbar-nav li .selected-language {
       display: none;
+    }
+
+    &.navbar-static-top {
+      top: 14px;
+      left: 14px;
+      margin-bottom: 0;
+      width: calc(100vw - 28px);
     }
   }
 }

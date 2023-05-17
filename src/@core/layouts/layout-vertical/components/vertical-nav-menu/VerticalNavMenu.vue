@@ -18,9 +18,12 @@
 
 <template>
   <div
-    class="main-menu menu-fixed menu-accordion menu-shadow"
+    class="main-menu menu-accordion menu-shadow"
     :class="[
-      { 'expanded': !isVerticalMenuCollapsed || (isVerticalMenuCollapsed && isMouseHovered) },
+      {
+        'expanded': !isVerticalMenuCollapsed || (isVerticalMenuCollapsed && isMouseHovered),
+        'menu-fixed': navbarStyle !== 'static'
+      },
       skin === 'semi-dark' ? 'menu-dark' : 'menu-light'
     ]"
     @mouseenter="updateMouseHovered(true)"
@@ -123,6 +126,11 @@ export default {
       type: Function,
       required: true,
     },
+  },
+  data() {
+    return {
+      navbarStyle: $themeConfig.layout.navbar.type,
+    }
   },
   setup(props) {
     const {

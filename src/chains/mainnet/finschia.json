@@ -25,7 +25,7 @@
     "min_gas_price": "0.000000015",
     "assets": [{
         "base": "cony",
-        "symbol": "LINK(LN)",
+        "symbol": "LN",
         "exponent": "6",
         "coingecko_id": "link",
         "logo": "https://www.line-website.com/link-scan-front-release/img/209a6fff584a69cc9183901efff475ff.png"

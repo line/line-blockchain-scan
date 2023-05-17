@@ -107,7 +107,6 @@ export default {
   },
   data() {
     return {
-      isLoading: true,
       succeed: false,
       error: '',
       checkTimes: 0,
@@ -129,6 +128,10 @@ export default {
     txUrl() {
       const chain = this.selectedChain ? this.selectedChain.chain_name : this.$store.state.chains.selected.chain_name
       return `/${chain}/tx/${this.hash}`
+    },
+    isLoading() {
+      if (this.succeed) return false
+      return true
     },
   },
   mounted() {
@@ -222,5 +225,9 @@ export default {
     color: var(--purple)
   }
 
+}
+
+.progress-bar.bg-info {
+  background-color: var(--gray) !important
 }
 </style>

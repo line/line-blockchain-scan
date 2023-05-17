@@ -1,35 +1,28 @@
 <template>
-  <layout-vertical>
+  <div>
+    <MaintenanceBanner />
+    <layout-vertical>
 
-    <router-view :key="$route.params.chain" />
+      <router-view :key="$route.params.chain" />
 
-    <template #navbar="{ toggleVerticalMenuActive }">
-      <navbar :toggle-vertical-menu-active="toggleVerticalMenuActive" />
-    </template>
+      <template #navbar="{ toggleVerticalMenuActive }">
+        <navbar :toggle-vertical-menu-active="toggleVerticalMenuActive" />
+      </template>
 
-    <!-- <app-customizer
-      v-if="showCustomizer"
-      slot="customizer"
-    /> -->
-  </layout-vertical>
+    </layout-vertical>
+  </div>
 </template>
 
 <script>
+import MaintenanceBanner from '@/views/components/MaintenanceBanner.vue'
 import LayoutVertical from '@core/layouts/layout-vertical/LayoutVertical.vue'
-// import AppCustomizer from '@core/layouts/components/app-customizer/AppCustomizer.vue'
-// import { $themeConfig } from '@themeConfig'
 import Navbar from '../components/Navbar.vue'
 
 export default {
   components: {
-    // AppCustomizer,
     LayoutVertical,
     Navbar,
-  },
-  data() {
-    return {
-      // showCustomizer: $themeConfig.layout.customizer,
-    }
+    MaintenanceBanner,
   },
 }
 </script>

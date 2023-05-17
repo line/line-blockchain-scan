@@ -24,7 +24,7 @@
     "min_tx_fee": "8000",
     "assets": [{
         "base": "tcony",
-        "symbol": "Test LINK(TFNSA)",
+        "symbol": "TFNSA",
         "exponent": "6",
         "coingecko_id": "",
         "logo": "https://www.line-website.com/link-scan-front-release/img/209a6fff584a69cc9183901efff475ff.png"

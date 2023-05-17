@@ -31,7 +31,7 @@
         <summary-parmeters-component
           :data="decoratedChain"
           :row-attributes="{ class: isFinschiaSelected ? '' : 'justify-content-center' }"
-          :col-attributes="{ xl: isFinschiaSelected ? 2 : 4 }"
+          :col-attributes="{ xl: isFinschiaSelected ? '' : 4 }"
         />
       </b-col>
     </b-row>
@@ -63,13 +63,12 @@ import {
 import {
   isToken, percent, timeIn, toDay, toDuration,
 } from '@/libs/utils'
-import { formatTokenAmount, tokenFormatter } from '@/libs/formatter'
+import { formatTokenAmount, formatTokenDenom, tokenFormatter } from '@/libs/formatter'
 
 import SummaryParmetersComponent from './SummaryParmetersComponent.vue'
 import SummaryAssetsComponent from './SummaryAssetsComponent.vue'
 
 const TOOLTIP_MAP = {
-  mint_denom: 'Type of coin to mint',
   inflation_rate_change: 'Maximum annual change in inflation rate',
   inflation_max: 'Maximum inflation rate',
   inflation_min: 'Minimum inflation rate',
@@ -77,9 +76,24 @@ const TOOLTIP_MAP = {
   blocks_per_year: 'Expected blocks per year',
   max_entries: 'Max entries for either unbonding delegation or redelegation',
   historical_entries: 'The number of historical entries to persist',
-  unbonding_time: 'The time duration of unbonding',
-  bond_denom: 'The bondable coin denomination',
+  unbonding_time: 'The time duration of undelegate',
 }
+
+const DISPLAY_SUBTITLE_MAP = {
+  inflation_rate_change: 'Inflation rate change',
+  inflation_max: 'Inflation(max)',
+  inflation_min: 'Inflation(min)',
+  goal_bonded: 'Target bonded ratio',
+  blocks_per_year: 'Blocks per year',
+  max_entries: 'Max entries',
+  historical_entries: 'Historical entries',
+  unbonding_time: 'Undelegate wait time',
+}
+
+const REMOVED_ITEMS = [
+  'mint_denom', // removed in v1.1.2. Specs: https://wiki.linecorp.com/display/blockchain/LBS_v1.1.2_Overview#LBS_v1.1.2_Overview-TASKS
+  'bond_denom', // removed in v1.1.2. Specs: https://wiki.linecorp.com/display/blockchain/LBS_v1.1.2_Overview#LBS_v1.1.2_Overview-TASKS
+]
 
 export default {
   components: {
@@ -98,11 +112,15 @@ export default {
         title: '',
         class: 'border-primary',
         items: [
-          { subtitle: 'height', icon: 'BoxIcon', color: 'light-success' },
-          { subtitle: 'supply_circulation', icon: 'DollarSignIcon', color: 'light-danger' },
+          { subtitle: 'height', icon: 'BoxIcon', color: 'light-info' },
+          {
+            subtitle: 'supply_circulation', icon: 'DollarSignIcon', color: 'light-danger', displaySubtitle: 'Circulating supply',
+          },
           { subtitle: 'bonded', icon: 'PercentIcon', color: 'light-warning' },
           { subtitle: 'inflation', icon: 'TrendingUpIcon', color: 'light-primary' },
-          { subtitle: 'community_pool', icon: 'AwardIcon', color: 'light-success' },
+          {
+            subtitle: 'community_pool', icon: 'AwardIcon', color: 'light-success', displaySubtitle: 'Community pool',
+          },
         ],
       },
       mint: {
@@ -170,8 +188,8 @@ export default {
             const bondedRatio = this.chain.items.findIndex(x => x.subtitle === 'bonded')
 
             this.$set(this.chain.items[bondedRatio], 'title', `${percent(pool[0].bondedToken / pool[1].amount)}%`)
-            this.$set(this.chain.items[bondedRatio], 'subtitleData', formatTokenAmount(pool[0].bondedToken, 0, stakingParameters.bond_denom))
-            this.$set(this.chain.items[bondedAndSupply], 'title', tokenAmount.toLocaleString())
+            this.$set(this.chain.items[bondedRatio], 'subtitleData', `${formatTokenAmount(pool[0].bondedToken, 0, stakingParameters.bond_denom)} ${formatTokenDenom(stakingParameters.bond_denom)}`)
+            this.$set(this.chain.items[bondedAndSupply], 'title', `${tokenAmount.toLocaleString()} ${formatTokenDenom(stakingParameters.bond_denom)}`)
           })
       })
       this.$http.getMintingInflation().then(res => {
@@ -189,7 +207,7 @@ export default {
           const formattedCommunityPoolAmountInDefaultDenom = formatTokenAmount(res.pool[0].amount, 0, res.pool[0].denom, true)
 
           const communityPoolIndex = this.chain.items.findIndex(x => x.subtitle === 'community_pool')
-          this.$set(this.chain.items[communityPoolIndex], 'title', formattedCommunityPoolAmountInDefaultDenom)
+          this.$set(this.chain.items[communityPoolIndex], 'title', `${formattedCommunityPoolAmountInDefaultDenom} ${formatTokenDenom(res.pool[0].denom)}`)
         })
       }
     })
@@ -204,21 +222,36 @@ export default {
       }
     },
     makeItems(data) {
-      return Object.keys(data).map(k => {
+      const getDisplaySubtitle = k => {
+        if (k in DISPLAY_SUBTITLE_MAP) return DISPLAY_SUBTITLE_MAP[k]
+        return k
+      }
+
+      return Object.keys(data).filter(k => !REMOVED_ITEMS.includes(k)).map(k => {
         if (isToken(data[k])) {
-          return { title: tokenFormatter(data[k]), subtitle: k, tooltip: TOOLTIP_MAP[k] }
+          return {
+            title: tokenFormatter(data[k]), subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+          }
         }
         if (typeof data[k] === 'boolean') {
-          return { title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k] }
+          return {
+            title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+          }
         }
         const d = Number(data[k])
         if (d < 1.01) {
-          return { title: `${percent(d)}%`, subtitle: k, tooltip: TOOLTIP_MAP[k] }
+          return {
+            title: `${percent(d)}%`, subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+          }
         }
         if (d > 1000000000) {
-          return { title: `${toDuration(d / 1000000)}`, subtitle: k, tooltip: TOOLTIP_MAP[k] }
+          return {
+            title: `${toDuration(d / 1000000)}`, subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+          }
         }
-        return { title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k] }
+        return {
+          title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+        }
       })
     },
   },

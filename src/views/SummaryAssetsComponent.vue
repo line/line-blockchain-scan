@@ -87,7 +87,25 @@ export default {
       if (trace) {
         return `* ${formatTokenDenom(trace)}`
       }
-      return formatTokenDenom(v, this.$store)
+      const formattedTokenDenom = formatTokenDenom(v)
+
+      // Only this place use this format due to specs v1.1.2: https://wiki.linecorp.com/pages/viewpage.action?spaceKey=blockchain&title=LBS_v1.1.2_Overview
+      // No check base on chain name ('Finschia Mainnet' or 'Ebony Testnet') for this switch case
+      // because there will be 2 Finschia chains working on next v1.2.0
+      // but the chain name is not defined yet
+      let displayableFormattedTokenDenom
+      switch (formattedTokenDenom) {
+        case 'LN':
+          displayableFormattedTokenDenom = `LINK(${formattedTokenDenom})`
+          break
+        case 'TFNSA':
+          displayableFormattedTokenDenom = `TEST FINSCHIA(${formattedTokenDenom})`
+          break
+        default:
+          displayableFormattedTokenDenom = formattedTokenDenom
+          break
+      }
+      return displayableFormattedTokenDenom
     },
   },
 }

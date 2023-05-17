@@ -85,13 +85,23 @@
                 :state="errors.length > 0 ? false:null"
                 placeholder="Input a number"
                 type="number"
+                @input="handleAmountInputChange"
               />
               <b-input-group-append is-text>
+                <max-clear-button-group
+                  @on-max-click="maximizeAmount"
+                  @on-clear-click="clearAmount"
+                />
                 {{ printDenom() }}
               </b-input-group-append>
             </b-input-group>
             <small class="text-danger">{{ errors[0] }}</small>
           </validation-provider>
+          <b-form-text
+            v-if="isMaxWarningShowed"
+          >
+            <span class="text-warning">The amount of tokens in your wallet will be zero. No transaction requests can be made after that. Please decide carefully.</span>
+          </b-form-text>
           <b-form-text>
             ≈ <strong class="text-primary">{{ currencySign }}{{ valuation }}</strong>
           </b-form-text>
@@ -114,8 +124,9 @@ import {
 import {
   getUnitAmount, getUserCurrency, getUserCurrencySign,
 } from '@/libs/utils'
-import { formatToken, formatTokenDenom } from '@/libs/formatter'
+import { formatToken, formatTokenAmount, formatTokenDenom } from '@/libs/formatter'
 import { operationalModal } from '@/@core/mixins/operational-modal'
+import MaxClearButtonGroup from '../MaxClearButtonGroup.vue'
 
 export default {
   name: 'TransforDialogue',
@@ -130,7 +141,7 @@ export default {
     BFormSelect,
     BFormSelectOption,
     ValidationProvider,
-
+    MaxClearButtonGroup,
   },
   mixins: [operationalModal],
   props: {
@@ -141,6 +152,10 @@ export default {
     balance: {
       type: Array,
       default: () => [],
+    },
+    feeWithTimestamp: {
+      type: Object,
+      default: null,
     },
   },
   data() {
@@ -161,6 +176,8 @@ export default {
       digits,
       length,
       alphaDash,
+      isSimulating: false,
+      isMaxWarningShowed: false,
     }
   },
   computed: {
@@ -199,6 +216,30 @@ export default {
       }
       return 0
     },
+    maxAmountBeforeFeeInCoinMinimalDenom() {
+      const selectedBalance = this.balance.find(item => item.denom === this.token)
+      if (selectedBalance) {
+        return selectedBalance.amount
+      }
+      return 0
+    },
+  },
+  watch: {
+    feeWithTimestamp(newVal) {
+      const { fee } = newVal
+      const feeInCoinMinimalDenom = getUnitAmount(fee, this.token)
+      const maxAmountAfterFeeInCoinMinimalDenom = this.maxAmountBeforeFeeInCoinMinimalDenom - feeInCoinMinimalDenom
+      if (this.isSimulating && !this.isMaxWarningShowed) {
+        this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+        this.isSimulating = false
+        this.isMaxWarningShowed = true
+      }
+      if (this.isMaxWarningShowed) {
+        if (getUnitAmount(this.amount, this.token) > maxAmountAfterFeeInCoinMinimalDenom) {
+          this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+        }
+      }
+    },
   },
   mounted() {
     this.$emit('update', {
@@ -213,6 +254,9 @@ export default {
         this.token = this.balance[0].denom
         return this.balance
       }
+      if (this.$store) {
+        this.token = this.$store.state.chains.selected.assets[0].base
+      }
       return []
     },
     format(v) {
@@ -221,7 +265,48 @@ export default {
     printDenom() {
       return formatTokenDenom(this.IBCDenom[this.token] || this.token)
     },
+    clearAmount() {
+      this.isMaxWarningShowed = false
+      this.amount = null
+    },
+    // The amount used for MAX button
+    maximizeAmount() {
+      this.isSimulating = true
+      if (this.maxAmountBeforeFeeInCoinMinimalDenom) {
+        const value = {
+          fromAddress: this.address,
+          toAddress: this.recipient || this.address, // if recipient is not entered, simulate sending token to user themself
+          amount: [
+            {
+              amount: this.maxAmountBeforeFeeInCoinMinimalDenom,
+              denom: this.token,
+            },
+          ],
+        }
+        const msg = [
+          {
+            typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+            value,
+            encodedValue: MsgSend.encode(value).finish(),
+          },
+        ]
+        const bypass = true // bypass the form validation check because we need to simulate before filling the value
+        this.$emit('msg-change', msg, bypass) // trigger msg-change to simulate the fee for the transaction
+      }
+    },
+    handleAmountInputChange() {
+      this.isMaxWarningShowed = false
+    },
   },
 
 }
 </script>
+
+<style lang="scss" scoped>
+#Amount {
+  z-index: 1;
+}
+.input-group-text {
+  position: relative;
+}
+</style>

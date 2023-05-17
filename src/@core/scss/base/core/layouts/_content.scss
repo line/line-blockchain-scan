@@ -197,7 +197,7 @@ html {
   // for static navbar
   .navbar-static {
     .main-menu {
-      top: 0;
+      top: 109px;
     }
     .content {
       min-height: calc(100% - calc(#{$navbar-height} + #{$footer-height}));
@@ -431,8 +431,9 @@ html {
   }
 
   // For static navbar
-  html body.navbar-static .app-content {
-    padding: calc(#{$content-padding} - 0.8rem) calc(#{$content-padding} - 0.8rem) 0 calc(#{$content-padding} - 0.8rem) !important; // - 0.8rem to reduce padding in small screen
+  html body .navbar-static .app-content {
+    padding: calc(#{$content-padding} - 0.8rem + #{$navbar-height} + #{$floating-nav-margin} - 4rem)
+      calc(#{$content-padding} - 0.8rem) 0 calc(#{$content-padding} - 0.8rem) !important;// - 0.8rem to reduce padding in small screen
   }
 
   // For sticky navbar
