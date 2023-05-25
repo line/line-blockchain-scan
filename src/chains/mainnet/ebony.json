@@ -31,7 +31,7 @@
     }],
     "addr_prefix": "tlink",
     "logos": {
-        "light": "/icon/LINK-logo-light.png",
-        "dark": "/icon/LINK-logo-dark.png"
+        "light": "/icon/FNSA-logo-light.png",
+        "dark": "/icon/FNSA-logo-dark.png"
     }
 }

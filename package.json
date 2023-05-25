@@ -1,15 +1,16 @@
 {
   "name": "line-blockchain-scan",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "config": {
-    "hotfixVersion": "1",
-    "qaVersion": "0"
+    "hotfixVersion": "0",
+    "qaVersion": "1"
   },
   "author": "Blockchain FE VN <dl_blockchain_fe_vn@linecorp.com>",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --mode production",
+    "postbuild": "rimraf ./dist/*.js.map && rimraf ./dist/**/*.js.map",
     "lint": "vue-cli-service lint",
     "analyz": "vue-cli-service build --report"
   },
@@ -30,6 +31,8 @@
     "@ledgerhq/hw-app-cosmos": "^6.3.0",
     "@ledgerhq/hw-transport-web-ble": "^6.3.0",
     "@ledgerhq/hw-transport-webusb": "^6.3.0",
+    "@sentry/tracing": "^7.47.0",
+    "@sentry/vue": "^7.47.0",
     "@vue/composition-api": "^1.4.9",
     "@vueuse/core": "4.0.0",
     "animate.css": "4.1.1",
@@ -95,6 +98,7 @@
     "vuex": "3.6.0"
   },
   "devDependencies": {
+    "@sentry/webpack-plugin": "^1.20.0",
     "@vue/cli-plugin-babel": "~4.5.9",
     "@vue/cli-plugin-eslint": "~4.5.9",
     "@vue/cli-plugin-router": "~4.5.9",

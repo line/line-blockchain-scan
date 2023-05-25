@@ -77,6 +77,7 @@ function processMenu() {
       header: 'blockchains',
     },
   ]
+  const legacyChainMenus = []
 
   Object.keys(store.state.chains.config).forEach(chain => {
     const menu = {
@@ -84,7 +85,11 @@ function processMenu() {
       logos: store.state.chains.config[chain].logos,
       route: { name: 'info', params: { chain } },
     }
-    const { excludes } = store.state.chains.config[chain]
+    const {
+      excludes,
+      is_legacy: isLegacy,
+      nav_menu_item_title: navMenuItemTitle,
+    } = store.state.chains.config[chain]
     const children = []
     modules.forEach(m => {
       if (excludes === undefined || excludes.indexOf(m.route) === -1) {
@@ -98,10 +103,16 @@ function processMenu() {
       }
     })
     menu.children = children
-    chainMenus.push(menu)
+    if (navMenuItemTitle) menu.navMenuItemTitle = navMenuItemTitle
+    if (isLegacy) {
+      menu.isLegacy = true
+      legacyChainMenus.push(menu)
+    } else {
+      chainMenus.push(menu)
+    }
   })
 
-  return [...chainMenus, ...linkMenus]
+  return [...chainMenus, ...linkMenus, ...legacyChainMenus]
 }
 
 export default processMenu()

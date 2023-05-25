@@ -22,7 +22,8 @@
     class="nav-item"
     :class="{
       'active': isActive,
-      'disabled': item.disabled
+      'disabled': item.disabled,
+      'is-legacy': item.isLegacy,
     }"
   >
     <b-link
@@ -30,7 +31,7 @@
       class="d-flex align-items-center"
     >
       <b-avatar
-        v-if="item.logo || item.logos"
+        v-if="!item.isLegacy && (item.logo || item.logos)"
         variant="transparent"
         :src="logo"
         icon="people-fill"
@@ -38,10 +39,10 @@
         class="mr-1 no-border-avatar"
       />
       <feather-icon
-        v-else
+        v-else-if="!item.isLegacy"
         :icon="item.icon || 'ChevronRightIcon'"
       />
-      <span class="text-truncate">{{ t(item.title) }}</span>
+      <span class="text-truncate">{{ t(item.navMenuItemTitle || item.title) }}</span>
       <b-badge
         v-if="item.tag"
         pill

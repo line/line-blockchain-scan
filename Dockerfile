@@ -19,6 +19,7 @@ WORKDIR /app
 
 COPY . ./
 
+ARG SENTRY_AUTH_TOKEN
 RUN yarn --frozen-lockfile
 RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
 

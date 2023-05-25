@@ -5,7 +5,7 @@ import Token from './token'
 function denomConverter(msg) {
   const convertedDenom = {
     tcony: 'TFNSA',
-    cony: 'LN',
+    cony: 'FNSA',
   }
   const convertedKey = {
     denom: 'coin',

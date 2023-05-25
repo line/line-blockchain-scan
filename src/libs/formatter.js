@@ -1,4 +1,4 @@
-import { getLocalChains } from './local'
+import { getLocalChains, getLocalSelectedChain } from './local'
 
 export function numberWithCommas(x) {
   const parts = x.toString().split('.')
@@ -10,9 +10,14 @@ export function formatTokenDenom(tokenDenom) {
   if (tokenDenom && tokenDenom.code === undefined) {
     let denom = tokenDenom.denom_trace ? tokenDenom.denom_trace.base_denom : tokenDenom
     const config = Object.values(getLocalChains())
+    const selectedChain = getLocalSelectedChain()
 
     config.forEach(x => {
-      if (x.assets) {
+      let matchSelectedChain = true
+      if (selectedChain) {
+        matchSelectedChain = x.chain_name === selectedChain
+      }
+      if (matchSelectedChain && x.assets) {
         const asset = x.assets.find(a => (a.base === denom))
         if (asset) denom = asset.symbol
       }

@@ -31,7 +31,7 @@
           System Maintenance 👷
         </h2>
         <p class="mb-2">
-          LINE Blockchain Scan is currently under maintenance. We apologize for the inconvenience.
+          Due to Finschia Mainnet Upgrade, LINE Blockchain Scan will be unavailable during the following period: 08:30-20:30 (UTC+9, It may change depending on the work situation)
         </p>
 
         <!-- image -->

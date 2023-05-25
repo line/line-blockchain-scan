@@ -20,6 +20,7 @@ const path = require('path')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const SentryWebpackPlugin = require('@sentry/webpack-plugin')
 
 const productionGzipExtensions = ['js', 'css']
 
@@ -31,9 +32,44 @@ const {
 
 const version = `${appVersion}.${hotfixVersion}.${qaVersion}`
 
+process.env.VUE_APP_VERSION = version // https://cli.vuejs.org/guide/mode-and-env.html#using-env-variables-in-client-side-code
+
+const plugins = [
+  new BundleAnalyzerPlugin({
+    analyzerMode: 'disabled',
+    openAnalyzer: false,
+  }),
+  new CompressionWebpackPlugin({
+    test: new RegExp(`\\.(${productionGzipExtensions.join('|')})$`),
+    threshold: 8192,
+    minRatio: 0.8,
+  }),
+  new HtmlWebpackPlugin({
+    inject: false,
+    template: './src/maintenance.html',
+    filename: 'maintenance.html',
+  }),
+]
+
+if (process.env.NODE_ENV === 'production') {
+  plugins.push(
+    new SentryWebpackPlugin({
+      url: 'https://sentry-uit.line-apps.com',
+      org: 'sentry-uit',
+      project: 'dosi-vault-extension',
+      include: './dist',
+      release: process.env.VUE_APP_VERSION,
+      deploy: {
+        env: process.env.PHASE,
+      },
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+    }),
+  )
+}
+
 module.exports = {
   publicPath: '/',
-  productionSourceMap: false,
+  productionSourceMap: true,
   css: {
     loaderOptions: {
       sass: {
@@ -60,22 +96,7 @@ module.exports = {
         '@axios': path.resolve(__dirname, 'src/libs/axios'),
       },
     },
-    plugins: [
-      new BundleAnalyzerPlugin({
-        analyzerMode: 'disabled',
-        openAnalyzer: false,
-      }),
-      new CompressionWebpackPlugin({
-        test: new RegExp(`\\.(${productionGzipExtensions.join('|')})$`),
-        threshold: 8192,
-        minRatio: 0.8,
-      }),
-      new HtmlWebpackPlugin({
-        inject: false,
-        template: './src/maintenance.html',
-        filename: 'maintenance.html',
-      }),
-    ],
+    plugins,
     output: {
       filename: process.env.NODE_ENV === 'production'
         ? `[name].${version}.[hash:8].js`

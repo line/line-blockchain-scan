@@ -1,18 +1,18 @@
 {
     "chain_name": "Finschia Mainnet",
     "api": {
-        "alpha": ["https://lbs-finschia.line-apps-alpha.com"],
-        "beta": ["https://lbs-finschia.line-apps-beta.com"],
-        "prod": ["https://lbs-finschia.line-apps.com"]
+        "alpha": ["https://lbs-finschianw.line-apps-alpha.com"],
+        "beta": ["https://lbs-finschianw.line-apps-beta.com"],
+        "prod": ["https://lbs-finschianw.line-apps.com"]
     },
     "dsvApi": {
-        "alpha": ["https://dsvt-finschia.line-apps-alpha.com"],
-        "beta": ["https://dsvt-finschia.line-apps-beta.com"],
+        "alpha": ["https://dsvt-finschianw.line-apps-alpha.com"],
+        "beta": ["https://dsvt-finschianw.line-apps-beta.com"],
         "prod": ["https://dsvt-finschia.line-apps.com"]
     },
     "dsvRpc": {
-        "alpha": ["https://dsvt-finschia-api.line-apps-alpha.com"],
-        "beta": ["https://dsvt-finschia-api.line-apps-beta.com"],
+        "alpha": ["https://dsvt-finschianw-api.line-apps-alpha.com"],
+        "beta": ["https://dsvt-finschianw-api.line-apps-beta.com"],
         "prod": ["https://dsvt-finschia-api.line-apps.com"]
     },
     "sdk_version": {
@@ -25,14 +25,14 @@
     "min_gas_price": "0.000000015",
     "assets": [{
         "base": "cony",
-        "symbol": "LN",
+        "symbol": "FNSA",
         "exponent": "6",
         "coingecko_id": "link",
         "logo": "https://www.line-website.com/link-scan-front-release/img/209a6fff584a69cc9183901efff475ff.png"
     }],
     "addr_prefix": "link",
     "logos": {
-        "light": "/icon/LINK-logo-light.png",
-        "dark": "/icon/LINK-logo-dark.png"
+        "light": "/icon/FNSA-logo-light.png",
+        "dark": "/icon/FNSA-logo-dark.png"
     }
 }

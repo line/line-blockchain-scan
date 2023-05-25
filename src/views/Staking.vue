@@ -251,11 +251,11 @@
       Please note that this is a beta version of the staking program which is still undergoing final testing before its official release.<br>
       <br>
       1. Please read the Terms of Service referred to below on this Website before using this program.<br>
-      2. Users can delegate their LINKs to up to 8 validators.<br>
+      2. Users can delegate their FINSCHIAs to up to 8 validators.<br>
       3. Each validator has a moniker starting with the letters F, I, N, S, C, H, I, and A.<br>
       4. Mainnet policy aims to avoid excessive concentration of delegations to certain validators.<br>
-      5. If a validator’s voting power exceeds 25%, users will be restricted from delegating their LINKs to the said validator.<br>
-      6. In the event of unstaking, the staked LINKs will be unstaked (undelegated) 24 hours after the users made such request.<br>
+      5. If a validator’s voting power exceeds 25%, users will be restricted from delegating their FINSCHIAs to the said validator.<br>
+      6. In the event of unstaking, the staked FINSCHIAs will be unstaked (undelegated) 24 hours after the users made such request.<br>
       <br>
       Policy stated above is subject to change once the official program is implemented. The staking program (beta), including its software and all content found on this website are provided on an “as is” and “as available” basis. We do not give any warranties, whether express or implied, as to the suitability or usability of the website, its software or any of its content.<br>
       <br>
@@ -263,7 +263,7 @@
         href="https://lin.ee/M4MaMZT/bofu"
         target="_blank"
       >
-        ☞ Guide for LINK(LN) Staking
+        ☞ Guide for FINSCHIA(FNSA) Staking
       </a>
     </b-card>
     * Your use of this website and service is entirely at your own risk. By continuing to access or use the webiste or any service provided herein, you confirm your agreement to these

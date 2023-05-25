@@ -1,6 +1,11 @@
 import Vue from 'vue'
 import { ToastPlugin, ModalPlugin } from 'bootstrap-vue'
 import VueCompositionAPI from '@vue/composition-api'
+
+import * as Sentry from '@sentry/vue'
+import { BrowserTracing } from '@sentry/tracing'
+import { v4 as uuidv4 } from 'uuid'
+
 import messages from '@/lang'
 
 import VueI18n from 'vue-i18n'
@@ -19,7 +24,27 @@ import '@/libs/portal-vue'
 import '@/libs/toastification'
 import '@/libs/clipboard'
 
+import { SENTRY_DSN } from './constants/config'
+
 // Vue.use(VueGtag, { config: { id: 'UA-238887-1' } }, router)
+
+if (process.env.NODE_ENV === 'production') {
+  Sentry.init({
+    Vue,
+    dsn: SENTRY_DSN,
+    integrations: [
+      new BrowserTracing({
+        routingInstrumentation: Sentry.vueRouterInstrumentation(router),
+      }),
+    ],
+    release: process.env.VUE_APP_VERSION,
+    environment: window.appConfig.PHASE,
+    tracesSampleRate: 1.0,
+  })
+  Sentry.setUser({
+    id: uuidv4(),
+  })
+}
 
 Vue.use(VueI18n)
 

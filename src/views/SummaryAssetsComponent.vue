@@ -96,7 +96,10 @@ export default {
       let displayableFormattedTokenDenom
       switch (formattedTokenDenom) {
         case 'LN':
-          displayableFormattedTokenDenom = `LINK(${formattedTokenDenom})`
+          displayableFormattedTokenDenom = 'FINSCHIA(FNSA)'
+          break
+        case 'FNSA':
+          displayableFormattedTokenDenom = `FINSCHIA(${formattedTokenDenom})`
           break
         case 'TFNSA':
           displayableFormattedTokenDenom = `TEST FINSCHIA(${formattedTokenDenom})`

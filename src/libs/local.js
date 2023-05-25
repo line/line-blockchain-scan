@@ -18,6 +18,10 @@ export function getLocalTxHistory() {
   return getLocalObject('txHistory')
 }
 
+export function getLocalSelectedChain() {
+  return localStorage.getItem('selected_chain')
+}
+
 export function setLocalTxHistory(tx) {
   const newTx = tx
   const txs = getLocalTxHistory()

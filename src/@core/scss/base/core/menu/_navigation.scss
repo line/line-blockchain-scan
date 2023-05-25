@@ -115,6 +115,16 @@
     &.navigation-main {
       overflow-x: hidden;
       padding-bottom: .75rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      > li.is-legacy {
+        margin-top: auto;
+        font-size: 12px;
+      }
+      > li.is-legacy ~ .is-legacy {
+        margin-top: unset;
+      }
       > li:first-child {
         margin-top: 0.5rem;
       }

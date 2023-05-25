@@ -78,6 +78,7 @@ export default {
     getchains: state => state.chains,
     getAvatarById: state => id => state.avatars[id],
     isFinschiaSelected: state => state.selected.chain_name === 'Finschia Mainnet',
+    isOldFinschiaSelected: state => state.selected.chain_name === '(Old) Finschia Mainnet',
   },
   mutations: {
     setup_sdk_version(state, info) {
@@ -144,6 +145,11 @@ export default {
                 // This display coin unit format is eventually changed to use only the symbol in v1.1.2: https://wiki.linecorp.com/pages/viewpage.action?spaceKey=blockchain&title=LBS_v1.1.2_Overview
                 // but this switch case is reserved here just in case there are further modifications
                 selectedChain.assets[0].symbol = symbol
+                break
+              case '(Old) Finschia Mainnet':
+                // For this chain it's required to hardcode `FNSA` no matter the denom metadata is returned
+                // https://line-enterprise.slack.com/archives/C03PCPW8LTF/p1684411238899689?thread_ts=1684399108.988119&cid=C03PCPW8LTF
+                selectedChain.assets[0].symbol = 'FNSA'
                 break
               default:
                 selectedChain.assets[0].symbol = symbol

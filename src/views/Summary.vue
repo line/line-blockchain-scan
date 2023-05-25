@@ -30,17 +30,17 @@
       <b-col>
         <summary-parmeters-component
           :data="decoratedChain"
-          :row-attributes="{ class: isFinschiaSelected ? '' : 'justify-content-center' }"
-          :col-attributes="{ xl: isFinschiaSelected ? '' : 4 }"
+          :row-attributes="{ class: isEitherFinschiaSelected ? '' : 'justify-content-center' }"
+          :col-attributes="{ xl: isEitherFinschiaSelected ? '' : 4 }"
         />
       </b-col>
     </b-row>
-    <b-row v-if="isFinschiaSelected">
+    <b-row v-if="isEitherFinschiaSelected">
       <b-col>
         <summary-parmeters-component :data="mint" />
       </b-col>
     </b-row>
-    <b-row v-if="isFinschiaSelected">
+    <b-row v-if="isEitherFinschiaSelected">
       <b-col>
         <summary-parmeters-component :data="staking" />
       </b-col>
@@ -72,7 +72,7 @@ const TOOLTIP_MAP = {
   inflation_rate_change: 'Maximum annual change in inflation rate',
   inflation_max: 'Maximum inflation rate',
   inflation_min: 'Minimum inflation rate',
-  goal_bonded: 'Goal of percent bonded LINKs',
+  goal_bonded: 'Goal of percent bonded FNSAs',
   blocks_per_year: 'Expected blocks per year',
   max_entries: 'Max entries for either unbonding delegation or redelegation',
   historical_entries: 'The number of historical entries to persist',
@@ -136,12 +136,13 @@ export default {
   computed: {
     ...mapGetters({
       isFinschiaSelected: 'chains/isFinschiaSelected',
+      isOldFinschiaSelected: 'chains/isOldFinschiaSelected',
     }),
     decoratedChain() {
       const items = [...this.chain.items]
 
       // Remove finschia-related items
-      if (!this.isFinschiaSelected) {
+      if (!this.isEitherFinschiaSelected) {
         items.splice(4, 1) // remove `community_pool` item
         items.splice(2, 1) // remove `bonded` item
       }
@@ -153,6 +154,9 @@ export default {
     },
     isFetchingDenomsMetadata() {
       return this.$store.state.chains.isFetchingDenomsMetadata
+    },
+    isEitherFinschiaSelected() {
+      return this.isFinschiaSelected || this.isOldFinschiaSelected
     },
   },
   created() {
@@ -202,7 +206,7 @@ export default {
 
       // Only getCommunityPool for Finschia
       // Specs: https://wiki.linecorp.com/display/blockchain/LBS_v1.1.1_Policies#LBS_v1.1.1_Policies-TASK#1-Add'Community_pool'valueto'Summary'screen(onlyforFinschia)
-      if (this.isFinschiaSelected) {
+      if (this.isEitherFinschiaSelected) {
         this.$http.getCommunityPool().then(res => {
           const formattedCommunityPoolAmountInDefaultDenom = formatTokenAmount(res.pool[0].amount, 0, res.pool[0].denom, true)
 
@@ -228,29 +232,31 @@ export default {
       }
 
       return Object.keys(data).filter(k => !REMOVED_ITEMS.includes(k)).map(k => {
+        const tooltip = TOOLTIP_MAP[k]
+
         if (isToken(data[k])) {
           return {
-            title: tokenFormatter(data[k]), subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+            title: tokenFormatter(data[k]), subtitle: k, tooltip, displaySubtitle: getDisplaySubtitle(k),
           }
         }
         if (typeof data[k] === 'boolean') {
           return {
-            title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+            title: data[k], subtitle: k, tooltip, displaySubtitle: getDisplaySubtitle(k),
           }
         }
         const d = Number(data[k])
         if (d < 1.01) {
           return {
-            title: `${percent(d)}%`, subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+            title: `${percent(d)}%`, subtitle: k, tooltip, displaySubtitle: getDisplaySubtitle(k),
           }
         }
         if (d > 1000000000) {
           return {
-            title: `${toDuration(d / 1000000)}`, subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+            title: `${toDuration(d / 1000000)}`, subtitle: k, tooltip, displaySubtitle: getDisplaySubtitle(k),
           }
         }
         return {
-          title: data[k], subtitle: k, tooltip: TOOLTIP_MAP[k], displaySubtitle: getDisplaySubtitle(k),
+          title: data[k], subtitle: k, tooltip, displaySubtitle: getDisplaySubtitle(k),
         }
       })
     },
