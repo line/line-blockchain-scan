@@ -93,6 +93,10 @@
                 type="number"
               />
               <b-input-group-append is-text>
+                <max-clear-button-group
+                  @on-max-click="maximizeAmount"
+                  @on-clear-click="clearAmount"
+                />
                 {{ printDenom() }}
               </b-input-group-append>
             </b-input-group>
@@ -115,9 +119,10 @@ import {
   required, email, url, between, alpha, integer, password, min, digits, alphaDash, length,
 } from '@validations'
 import { getUnitAmount } from '@/libs/utils'
-import { formatToken, formatTokenDenom } from '@/libs/formatter'
+import { formatToken, formatTokenAmount, formatTokenDenom } from '@/libs/formatter'
 import vSelect from 'vue-select'
 import { operationalModal } from '@/@core/mixins/operational-modal'
+import MaxClearButtonGroup from '../MaxClearButtonGroup.vue'
 
 export default {
   name: 'Redelegate',
@@ -130,6 +135,7 @@ export default {
     vSelect,
     BInputGroupAppend,
     ValidationProvider,
+    MaxClearButtonGroup,
   },
   mixins: [operationalModal],
   props: {
@@ -200,6 +206,19 @@ export default {
         encodedValue: MsgBeginRedelegate.encode(value).finish(),
       }]
     },
+    // The amount used for MAX button
+    maxAmountBeforeFeeInCoinMinimalDenom() {
+      // find all the delegations of the current selected validatorAddress
+      const delegations = this.delegations.filter(x => x.delegation.validator_address === this.validatorAddress)
+
+      // in the delegations found, find the one that has denom matching with current chain
+      // to get the amount
+      const selectedDelegation = delegations.find(item => item.balance.denom === this.token)
+      if (selectedDelegation) {
+        return selectedDelegation.balance.amount
+      }
+      return 0
+    },
   },
   mounted() {
     this.$emit('update', {
@@ -235,9 +254,27 @@ export default {
     printDenom() {
       return formatTokenDenom(this.token)
     },
+    clearAmount() {
+      this.amount = null
+    },
+    maximizeAmount() {
+      if (this.maxAmountBeforeFeeInCoinMinimalDenom) {
+        // Due to specs, user can undelegate all the amount without deducting the fee.
+        this.amount = formatTokenAmount(this.maxAmountBeforeFeeInCoinMinimalDenom, 6, this.token)
+      }
+    },
   },
 }
 </script>
 <style lang="scss">
 @import '@core/scss/vue/libs/vue-select.scss';
+</style>
+
+<style lang="scss" scoped>
+#Amount {
+  z-index: 1;
+}
+.input-group-text {
+  position: relative;
+}
 </style>

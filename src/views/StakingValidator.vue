@@ -46,7 +46,7 @@
               </div>
             </div>
 
-            <div class="d-flex align-items-center mr-2">
+            <!-- <div class="d-flex align-items-center mr-2">
               <b-avatar
                 variant="light-warning"
                 rounded
@@ -62,7 +62,7 @@
                 </h5>
                 <small>Self Delegation</small>
               </div>
-            </div>
+            </div> -->
 
             <div
               v-if="mintInflation"
@@ -317,7 +317,7 @@ export default {
       latestHeight: 0,
       accountAddress: '-',
       hexAddress: '-',
-      stakingPool: {},
+      stakingPoolResponse: {}, // variable name `stakingPool` is already defined in mixin `validators` as a number => use a different variable name to store the response object
       mintInflation: 0,
       stakingParameter: new StakingParameters(),
       validator: new Validator(),
@@ -345,7 +345,7 @@ export default {
     },
   },
   created() {
-    this.$http.getStakingPool().then(res => { this.stakingPool = res })
+    this.$http.getStakingPool().then(res => { this.stakingPoolResponse = res })
     this.$http.getStakingParameters().then(res => { this.stakingParameter = res })
     this.$http.getMintingInflation().then(res => { this.mintInflation = res })
     this.address = this.$route.params.address

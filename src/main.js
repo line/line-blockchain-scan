@@ -11,6 +11,7 @@ import messages from '@/lang'
 import VueI18n from 'vue-i18n'
 
 import ChainAPI from '@/libs/fetch'
+import LandpressContentAPI from '@/libs/landpress-content-api'
 
 import router from './router'
 import store from './store'
@@ -69,6 +70,7 @@ require('@/assets/scss/style.scss')
 
 Vue.config.productionTip = false
 Vue.prototype.$http = new ChainAPI()
+Vue.prototype.$landpress = new LandpressContentAPI()
 
 new Vue({
   router,

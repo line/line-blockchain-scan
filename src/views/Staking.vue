@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div>
     <b-card
@@ -125,17 +126,10 @@
             </b-media-body>
           </div>
           <div class="vr border-left border-light ml-3 mr-3" />
-          <div class="my-auto">
-            <p class="font-small-3 mb-0">
-              • A 5% commission fee from user's reward will be charged to each and every validator
-            </p>
-            <p class="font-small-3 mb-0">
-              • Regardless of which validator you choose, there will be no difference in the expected annual reward rate (i.e., ARR)
-            </p>
-            <p class="font-small-3 mb-0">
-              • The final rate of return may vary depending on the user's decision (i.e., staking period, frequency of reward restakes, etc.) and chain status(i.e., network latency, delay of block confirmation, etc.)
-            </p>
-          </div>
+          <div
+            class="my-auto inner-html-1"
+            v-html="arrGuideHtml"
+          />
         </b-media>
       </b-card-header>
       <b-card-body class="pl-0 pr-0 pb-0">
@@ -247,25 +241,18 @@
         </small>
       </template>
     </b-card>
-    <b-card>
-      Please note that this is a beta version of the staking program which is still undergoing final testing before its official release.<br>
-      <br>
-      1. Please read the Terms of Service referred to below on this Website before using this program.<br>
-      2. Users can delegate their FINSCHIAs to up to 8 validators.<br>
-      3. Each validator has a moniker starting with the letters F, I, N, S, C, H, I, and A.<br>
-      4. Mainnet policy aims to avoid excessive concentration of delegations to certain validators.<br>
-      5. If a validator’s voting power exceeds 25%, users will be restricted from delegating their FINSCHIAs to the said validator.<br>
-      6. In the event of unstaking, the staked FINSCHIAs will be unstaked (undelegated) 24 hours after the users made such request.<br>
-      <br>
-      Policy stated above is subject to change once the official program is implemented. The staking program (beta), including its software and all content found on this website are provided on an “as is” and “as available” basis. We do not give any warranties, whether express or implied, as to the suitability or usability of the website, its software or any of its content.<br>
-      <br>
-      <a
-        href="https://lin.ee/M4MaMZT/bofu"
-        target="_blank"
-      >
-        ☞ Guide for FINSCHIA(FNSA) Staking
-      </a>
-    </b-card>
+    <div class="card">
+      <div class="card-header">
+        <h4
+          class="card-title"
+          v-html="importantNoticeTitle"
+        />
+      </div>
+      <div
+        class="card-body inner-html-2"
+        v-html="importantNoticeHtml"
+      />
+    </div>
     * Your use of this website and service is entirely at your own risk. By continuing to access or use the webiste or any service provided herein, you confirm your agreement to these
     <router-link to="/tos_staking">
       terms.
@@ -282,13 +269,22 @@
 import {
   BTable, BMedia, BMediaAside, BMediaBody, BAvatar, BBadge, BCard, BCardText, BCardHeader, VBTooltip, BCardBody, BButton,
 } from 'bootstrap-vue'
+import { sanitize } from 'dompurify'
 import { validators } from '@/@core/mixins/validators'
 import { percent } from '@/libs/utils'
 import { formatToken } from '@/libs/formatter'
 import { keybase } from '@/libs/fetch'
 import OperationModal from '@/views/components/OperationModal/index.vue'
+import landpress from '../constants/landpress.json'
 // import { toHex } from '@cosmjs/encoding'
 // import fetch from 'node-fetch'
+
+const phase = window.appConfig.PHASE
+const landpressProject = landpress.project[phase]
+
+// Landpress single type
+const arrGuideST = landpressProject.single_type.staking_arr_guide
+const importantNoticeST = landpressProject.single_type.staking_important_notice
 
 export default {
   components: {
@@ -354,6 +350,9 @@ export default {
       selectedStatus: 'active',
       isInactiveLoaded: false,
       inactiveValidators: [],
+      arrGuideHtml: '',
+      importantNoticeTitle: '',
+      importantNoticeHtml: '',
     }
   },
   computed: {
@@ -388,6 +387,13 @@ export default {
   },
   methods: {
     initial() {
+      this.$landpress.getSingleType(arrGuideST).then(data => {
+        this.arrGuideHtml = sanitize(data.body.content) // sanitize to prevent XSS
+      })
+      this.$landpress.getSingleType(importantNoticeST).then(data => {
+        this.importantNoticeTitle = sanitize(data.body.title) // sanitize to prevent XSS
+        this.importantNoticeHtml = sanitize(data.body.content) // sanitize to prevent XSS
+      })
       this.$http.getValidatorList().then(res => {
         const identities = []
         const temp = res
@@ -529,6 +535,11 @@ export default {
   .media-arr, .media-arr .media-aside {
     align-items: center !important;
   }
+}
+
+.inner-html-1 p {
+  font-size: 0.9rem !important;
+  margin-bottom: 0 !important;
 }
 </style>
 

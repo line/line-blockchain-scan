@@ -1,0 +1,67 @@
+{
+  "project": {
+    "alpha": {
+      "url": "https://landpress-content.line-scdn.net/contents/v2/projects/3u79vy6xunm33wdo8a8p4sr1",
+      "x-client-api-key": null,
+      "collections": {
+        "staking_screen": {
+          "id": "staking_screen",
+          "items": {
+            "arr_guide": {
+              "id": 1
+            },
+            "important_notice": {
+              "id": 2
+            }
+          }
+        }
+      },
+      "single_type": {
+        "staking_arr_guide": "staking_arr_guide",
+        "staking_important_notice": "staking_important_notice"
+      }
+    },
+    "beta": {
+      "url": "https://landpress-content.line-scdn.net/contents/v2/projects/3u79vy6xunm33wdo8a8p4sr1",
+      "x-client-api-key": null,
+      "collections": {
+        "staking_screen": {
+          "id": "staking_screen",
+          "items": {
+            "arr_guide": {
+              "id": 1
+            },
+            "important_notice": {
+              "id": 2
+            }
+          }
+        }
+      },
+      "single_type": {
+        "staking_arr_guide": "staking_arr_guide",
+        "staking_important_notice": "staking_important_notice"
+      }
+    },
+    "prod": {
+      "url": "https://landpress-content.line-scdn.net/contents/v2/projects/wdmwbfuv10x39bukv58ocevp",
+      "x-client-api-key": null,
+      "collections": {
+        "staking_screen": {
+          "id": "staking_screen",
+          "items": {
+            "arr_guide": {
+              "id": 1
+            },
+            "important_notice": {
+              "id": 2
+            }
+          }
+        }
+      },
+      "single_type": {
+        "staking_arr_guide": "staking_arr_guide",
+        "staking_important_notice": "staking_important_notice"
+      }
+    }
+  }
+}

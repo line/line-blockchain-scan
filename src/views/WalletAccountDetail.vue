@@ -117,17 +117,17 @@
                   >{{ token.percent }}%</span>
                   <span
                     v-else
-                    v-b-tooltip.hover.top="token.denom"
+                    v-b-tooltip.hover.top="formatDenom(token.denom)"
                     class="text-right"
                   >{{ formatToken(token) }}</span>
                 </div>
                 <div
                   v-if="isFinschiaSelected"
-                  v-b-tooltip.hover.top="token.denom"
+                  v-b-tooltip.hover.top="formatDenom(token.denom)"
                   class="d-flex flex-column"
                 >
                   <span
-                    v-b-tooltip.hover.top="token.denom"
+                    v-b-tooltip.hover.top="formatDenom(token.denom)"
                     class="text-right"
                   >{{ formatToken(token) }}</span>
                   <small class="text-right">{{ currency }}{{ formatNumber(token.currency) }}</small>
@@ -234,6 +234,15 @@
               <b-button-group
                 size="sm"
               >
+                <b-button
+                  v-b-modal.operation-modal
+                  v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                  v-b-tooltip.hover.top="'Redelegate'"
+                  variant="outline-primary"
+                  @click="selectValue(data.value,'Redelegate')"
+                >
+                  <feather-icon icon="ShuffleIcon" />
+                </b-button>
                 <b-button
                   v-b-modal.operation-modal
                   v-ripple.400="'rgba(113, 102, 240, 0.15)'"

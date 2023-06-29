@@ -1,9 +1,9 @@
 {
   "name": "line-blockchain-scan",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "config": {
-    "hotfixVersion": "0",
-    "qaVersion": "1"
+    "hotfixVersion": "1",
+    "qaVersion": "0"
   },
   "author": "Blockchain FE VN <dl_blockchain_fe_vn@linecorp.com>",
   "private": true,
@@ -48,6 +48,7 @@
     "core-js": "^3.22.7",
     "cosmjs-types": "^0.5.2",
     "dayjs": "^1.10.6",
+    "dompurify": "^3.0.3",
     "echarts": "5.3.0",
     "lbmjs-types": "^0.44.0-rc0",
     "leaflet": "1.6.0",
