@@ -35,6 +35,11 @@ const modules = [
     route: 'staking',
   },
   {
+    scope: 'normal',
+    title: 'Governance',
+    route: 'governance',
+  },
+  {
     scope: 'cos-mos',
     title: 'gravity',
     route: 'gravity',

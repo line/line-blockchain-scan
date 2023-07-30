@@ -230,13 +230,13 @@ export default {
       const feeInCoinMinimalDenom = getUnitAmount(fee, this.token)
       const maxAmountAfterFeeInCoinMinimalDenom = this.maxAmountBeforeFeeInCoinMinimalDenom - feeInCoinMinimalDenom
       if (this.isSimulating && !this.isMaxWarningShowed) {
-        this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+        this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token, false)
         this.isSimulating = false
         this.isMaxWarningShowed = true
       }
       if (this.isMaxWarningShowed) {
         if (getUnitAmount(this.amount, this.token) > maxAmountAfterFeeInCoinMinimalDenom) {
-          this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+          this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token, false)
         }
       }
     },

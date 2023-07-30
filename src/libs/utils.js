@@ -311,8 +311,11 @@ export function getUnitAmount(amount, tokenDenom) {
       if (asset) exp = asset.exponent
     }
   })
+
+  // `amount` can be string and can include commas so it's neccessary to remove all commas (if any)
+  const cleanedAmount = typeof amount === 'string' ? amount.replace(/,/g, '') : amount
   // eslint-disable-next-line no-undef
-  return String(BigInt(Number(amount) * (10 ** exp)))
+  return String(BigInt(Number(cleanedAmount) * (10 ** exp)))
 }
 
 export function isTestnet() {

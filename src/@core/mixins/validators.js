@@ -2,9 +2,10 @@ import BigNumber from 'bignumber.js'
 import { StakingParameters } from '@/libs/utils'
 import { numberWithCommas } from '@/libs/formatter'
 
-const VOTING_POWER_LIMIT = 0.25 // https://wiki.linecorp.com/display/blockchain/LBS_v1.1.0_Policies
+import { votingPowerPolicy } from '@/@core/mixins/voting-power-policy'
 
 export const validators = {
+  mixins: [votingPowerPolicy],
   data() {
     return {
       stakingPool: 1,
@@ -27,25 +28,8 @@ export const validators = {
     this.$http.getMintingInflation().then(res => { this.inflationRate = new BigNumber(res) })
     this.$http.getFoundationParams().then(res => { this.foundationTax = new BigNumber(res.params.foundation_tax) })
     this.$http.getDistributionParameters().then(res => { this.communityTax = new BigNumber(res.community_tax) })
-    this.$http.getStakingPool().then(pool => {
-      this.stakingPool = pool.bondedToken
-    })
   },
   computed: {
-    decoratedValidators() {
-      return this.validators
-        .filter(({ commission: { rate } }) => rate < 1)
-        .map(validator => ({
-          ...validator,
-          votingPower: validator.tokens / this.stakingPool,
-        }))
-        .sort((validator1, validator2) => {
-          if (new BigNumber(validator1.votingPower).gt(new BigNumber(validator2.votingPower))) {
-            return 1
-          }
-          return -1
-        })
-    },
     bondedToken() {
       const bondedToken = this.decoratedValidators.reduce((result, validator) => result.plus(new BigNumber(validator.tokens)), new BigNumber(0))
 
@@ -90,10 +74,12 @@ export const validators = {
 
       return `~${numberWithCommas(this.apr.decimalPlaces(2).toString())}%`
     },
-  },
-  methods: {
-    isOverVotingPower(votingPower) {
-      return votingPower > VOTING_POWER_LIMIT
+    maxArr() {
+      // returns max ARR of this.decoratedValidators: https://wiki.linecorp.com/display/blockchain/LBS_v1.2.2_Overview
+      return BigNumber.max(...this.decoratedValidators.map(item => item.arr))
+    },
+    maxArrPretty() {
+      return `~${numberWithCommas(this.maxArr.times(100).decimalPlaces(2).toString())}%`
     },
   },
 }

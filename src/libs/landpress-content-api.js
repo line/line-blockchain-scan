@@ -1,7 +1,9 @@
+import { sanitize } from 'dompurify'
+
 const landpress = require('../constants/landpress.json')
 
 const phase = window.appConfig.PHASE
-const landpressProject = landpress.project[phase]
+export const landpressProject = landpress.project[phase]
 
 export default class LandpressContentAPI {
   constructor() {
@@ -30,5 +32,15 @@ export default class LandpressContentAPI {
       method: 'GET',
       headers: this.headers,
     }).then(response => response.json())
+  }
+
+  async getSingleTypeMultipleFields(singleType, fields = ['content']) {
+    return this.getSingleType(singleType).then(data => {
+      const result = []
+      fields.forEach((field, index) => {
+        result[index] = sanitize(data.body[field])
+      })
+      return result
+    })
   }
 }

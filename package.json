@@ -1,8 +1,8 @@
 {
   "name": "line-blockchain-scan",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "config": {
-    "hotfixVersion": "1",
+    "hotfixVersion": "2",
     "qaVersion": "0"
   },
   "author": "Blockchain FE VN <dl_blockchain_fe_vn@linecorp.com>",

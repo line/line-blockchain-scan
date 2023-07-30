@@ -122,6 +122,8 @@ import { getUnitAmount } from '@/libs/utils'
 import { formatToken, formatTokenAmount, formatTokenDenom } from '@/libs/formatter'
 import vSelect from 'vue-select'
 import { operationalModal } from '@/@core/mixins/operational-modal'
+import { votingPowerPolicy } from '@/@core/mixins/voting-power-policy'
+import { HIDDEN_VALIDATOR_STATUSES } from '@/constants/validators'
 import MaxClearButtonGroup from '../MaxClearButtonGroup.vue'
 
 export default {
@@ -137,7 +139,7 @@ export default {
     ValidationProvider,
     MaxClearButtonGroup,
   },
-  mixins: [operationalModal],
+  mixins: [operationalModal, votingPowerPolicy],
   props: {
     validatorAddress: {
       type: String,
@@ -174,16 +176,20 @@ export default {
   computed: {
     valOptions() {
       let options = []
-      const vals = this.validators.map(x => ({ value: x.operator_address, label: `${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
+      const vals = this.decoratedValidators
+        .filter(x => !this.isOverVotingPower(x) && !HIDDEN_VALIDATOR_STATUSES.includes(x.status))
+        .map(x => ({ value: x.operator_address, label: `${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
       if (vals.length > 0) {
         options.push({ value: null, label: '=== ACTIVE VALIDATORS ===' })
         options = options.concat(vals)
       }
-      const unbunded = this.unbundValidators.map(x => ({ value: x.operator_address, label: `* ${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
-      if (unbunded.length > 0) {
-        options.push({ value: null, label: '=== INACTIVE VALIDATORS ===', disabled: true })
-        options = options.concat(unbunded)
-      }
+
+      // `this.unbundValidators` includes unbonded validators and is excluded 'Validator' of Redelegate pop-over in v1.2.1.2
+      // const unbunded = this.unbundValidators.map(x => ({ value: x.operator_address, label: `* ${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
+      // if (unbunded.length > 0) {
+      //   options.push({ value: null, label: '=== INACTIVE VALIDATORS ===', disabled: true })
+      //   options = options.concat(unbunded)
+      // }
       return options
     },
     tokenOptions() {
@@ -260,7 +266,7 @@ export default {
     maximizeAmount() {
       if (this.maxAmountBeforeFeeInCoinMinimalDenom) {
         // Due to specs, user can undelegate all the amount without deducting the fee.
-        this.amount = formatTokenAmount(this.maxAmountBeforeFeeInCoinMinimalDenom, 6, this.token)
+        this.amount = formatTokenAmount(this.maxAmountBeforeFeeInCoinMinimalDenom, 6, this.token, false)
       }
     },
   },

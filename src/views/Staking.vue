@@ -121,7 +121,7 @@
                 />
               </b-card-text>
               <h4 class="font-weight-bolder mb-0 text-primary">
-                {{ aprPretty }}
+                {{ maxArrPretty }}
               </h4>
             </b-media-body>
           </div>
@@ -137,8 +137,6 @@
           class="mb-0"
           :items="list"
           :fields="validator_fields"
-          :sort-desc="true"
-          sort-by="tokens"
           striped
           hover
           responsive="sm"
@@ -209,26 +207,20 @@
             >{{ data.item.changes }}</small>
           </template>
           <template #cell(operation)="data">
-            <span
-              v-b-tooltip.top.html="isOverVotingPower(data.item.votingPower) ? 'Temporarily unavailable <br>(Voting Power exceeds 25%)' : ''"
-              class="d-inline-block"
-              tabindex="0"
+            <b-button
+              v-b-modal.operation-modal
+              :name="data.item.operator_address"
+              variant="primary"
+              size="sm"
+              :disabled="isOverVotingPower(data.item)"
+              @click="selectValidator(data.item.operator_address)"
             >
-              <b-button
-                v-b-modal.operation-modal
-                :name="data.item.operator_address"
-                variant="primary"
-                size="sm"
-                :disabled="isOverVotingPower(data.item.votingPower)"
-                @click="selectValidator(data.item.operator_address)"
-              >
-                Delegate
-              </b-button>
-            </span>
+              Delegate
+            </b-button>
           </template>
         </b-table>
       </b-card-body>
-      <template #footer>
+      <!-- <template #footer>
         <small class="d-none d-md-block">
           <b-badge variant="danger">
               &nbsp;
@@ -239,13 +231,19 @@
           </b-badge>
           Top 67% of Voting Power
         </small>
-      </template>
+      </template> -->
     </b-card>
     <div class="card">
       <div class="card-header">
         <h4
+          v-if="importantNoticeTitleHtml"
           class="card-title"
-          v-html="importantNoticeTitle"
+          v-html="importantNoticeTitleHtml"
+        />
+        <h4
+          v-else
+          class="card-title"
+          v-text="importantNoticeTitle"
         />
       </div>
       <div
@@ -269,18 +267,15 @@
 import {
   BTable, BMedia, BMediaAside, BMediaBody, BAvatar, BBadge, BCard, BCardText, BCardHeader, VBTooltip, BCardBody, BButton,
 } from 'bootstrap-vue'
-import { sanitize } from 'dompurify'
 import { validators } from '@/@core/mixins/validators'
 import { percent } from '@/libs/utils'
 import { formatToken } from '@/libs/formatter'
 import { keybase } from '@/libs/fetch'
 import OperationModal from '@/views/components/OperationModal/index.vue'
-import landpress from '../constants/landpress.json'
+import { HIDDEN_VALIDATOR_STATUSES } from '@/constants/validators'
+import { landpressProject } from '@/libs/landpress-content-api'
 // import { toHex } from '@cosmjs/encoding'
 // import fetch from 'node-fetch'
-
-const phase = window.appConfig.PHASE
-const landpressProject = landpress.project[phase]
 
 // Landpress single type
 const arrGuideST = landpressProject.single_type.staking_arr_guide
@@ -314,20 +309,19 @@ export default {
       latestPower: {},
       previousPower: {},
       validator_fields: [
-        {
-          key: 'index',
-          label: '#',
-          tdClass: 'd-none d-md-block',
-          thClass: 'd-none d-md-block',
-        },
+        // hide "#" column in v1.2.2
+        // {
+        //   key: 'index',
+        //   label: '#',
+        //   tdClass: 'd-none d-md-block',
+        //   thClass: 'd-none d-md-block',
+        // },
         { key: 'description', label: 'Validator' },
         {
           key: 'tokens',
           label: 'Voting Power',
-          sortable: true,
           tdClass: 'text-right',
           thClass: 'text-right',
-          sortByFormatted: true,
         },
         {
           key: 'changes',
@@ -336,6 +330,12 @@ export default {
         {
           key: 'commission',
           formatter: value => `${percent(value.rate)}%`,
+          tdClass: 'text-right',
+          thClass: 'text-right',
+        },
+        {
+          key: 'arr',
+          formatter: value => `${percent(value)}%`,
           tdClass: 'text-right',
           thClass: 'text-right',
         },
@@ -352,6 +352,7 @@ export default {
       inactiveValidators: [],
       arrGuideHtml: '',
       importantNoticeTitle: '',
+      importantNoticeTitleHtml: '',
       importantNoticeHtml: '',
     }
   },
@@ -361,7 +362,7 @@ export default {
     },
     list() {
       const tab = this.selectedStatus === 'active' ? this.decoratedValidators : this.inactiveValidators
-      return tab.map(x => {
+      return tab.filter(x => !HIDDEN_VALIDATOR_STATUSES.includes(x.status)).map(x => {
         const xh = x
         if (Object.keys(this.latestPower).length > 0 && Object.keys(this.previousPower).length > 0) {
           const latest = this.latestPower[x.consensus_pubkey.key] || 0
@@ -387,12 +388,13 @@ export default {
   },
   methods: {
     initial() {
-      this.$landpress.getSingleType(arrGuideST).then(data => {
-        this.arrGuideHtml = sanitize(data.body.content) // sanitize to prevent XSS
+      this.$landpress.getSingleTypeMultipleFields(arrGuideST).then(([data]) => {
+        this.arrGuideHtml = data
       })
-      this.$landpress.getSingleType(importantNoticeST).then(data => {
-        this.importantNoticeTitle = sanitize(data.body.title) // sanitize to prevent XSS
-        this.importantNoticeHtml = sanitize(data.body.content) // sanitize to prevent XSS
+      this.$landpress.getSingleTypeMultipleFields(importantNoticeST, ['title', 'title_html', 'content']).then(([title, titleHtml, content]) => {
+        this.importantNoticeTitle = title
+        this.importantNoticeTitleHtml = titleHtml
+        this.importantNoticeHtml = content
       })
       this.$http.getValidatorList().then(res => {
         const identities = []

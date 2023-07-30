@@ -18,7 +18,9 @@
       },
       "single_type": {
         "staking_arr_guide": "staking_arr_guide",
-        "staking_important_notice": "staking_important_notice"
+        "staking_important_notice": "staking_important_notice",
+        "tos_common": "tos_common",
+        "tos_staking": "tos_staking"
       }
     },
     "beta": {
@@ -39,7 +41,9 @@
       },
       "single_type": {
         "staking_arr_guide": "staking_arr_guide",
-        "staking_important_notice": "staking_important_notice"
+        "staking_important_notice": "staking_important_notice",
+        "tos_common": "tos_common",
+        "tos_staking": "tos_staking"
       }
     },
     "prod": {
@@ -60,7 +64,9 @@
       },
       "single_type": {
         "staking_arr_guide": "staking_arr_guide",
-        "staking_important_notice": "staking_important_notice"
+        "staking_important_notice": "staking_important_notice",
+        "tos_common": "tos_common",
+        "tos_staking": "tos_staking"
       }
     }
   }

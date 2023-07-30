@@ -2,7 +2,7 @@
   <div>
     <b-row class="match-height">
       <b-col
-        v-for="p in proposals"
+        v-for="p in filteredProposals"
         :key="p.id"
         lg="6"
         md="12"
@@ -23,8 +23,11 @@
             <b-badge
               v-if="p.status == 2"
               pill
-              variant="light-primary"
               class="text-right"
+              :class="{
+                'badge-light-primary': layoutSkin === 'light',
+                'badge-dark-primary': layoutSkin === 'dark',
+              }"
             >
               Voting
             </b-badge>
@@ -164,7 +167,7 @@
             >
               {{ $t('btn_deposit') }}
             </b-button>
-            <b-button
+            <!-- <b-button
               v-if="p.status===2"
               v-b-modal.operation-modal
               variant="primary"
@@ -172,7 +175,7 @@
               @click="selectProposal('Vote',p.id, p.title)"
             >
               {{ $t('btn_vote') }}
-            </b-button>
+            </b-button> -->
           </b-card-footer>
         </b-card>
       </b-col>
@@ -224,7 +227,19 @@ export default {
       operationModalType: '',
     }
   },
+  computed: {
+    filteredProposals() {
+      // Based on Proposal ID, show from No. 12 (hide No. 11 and below): https://wiki.linecorp.com/display/blockchain/LBS_v1.2.2_Overview
+      return this.proposals.filter(item => Number(item.id) >= 12)
+    },
+    layoutSkin() {
+      return this.$store.state.appConfig.layout.skin
+    },
+  },
   mounted() {
+    // Call getSelectedConfig to avoid error `TypeError: Cannot read properties of undefined (reading 'sdk_version')`
+    // because `this.config` is undefined
+    this.$http.getSelectedConfig()
     this.getList()
   },
   methods: {

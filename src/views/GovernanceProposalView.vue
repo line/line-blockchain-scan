@@ -17,8 +17,11 @@
           <b-badge
             v-if="proposal.status == 2"
             pill
-            variant="light-primary"
             class="text-right"
+            :class="{
+              'badge-light-primary': layoutSkin === 'light',
+              'badge-dark-primary': layoutSkin === 'dark',
+            }"
           >
             Voting
           </b-badge>
@@ -55,13 +58,13 @@
                 {{ $t('proposal_id') }}
               </b-td><b-td>{{ proposal.id }}</b-td>
             </b-tr>
-            <b-tr>
+            <!-- <b-tr>
               <b-td>
                 {{ $t('proposal_proposer') }}
               </b-td><b-td><router-link :to="`../account/${proposer.proposer}`">
                 {{ formatAddress(proposer.proposer) }}
               </router-link> </b-td>
-            </b-tr>
+            </b-tr> -->
             <b-tr>
               <b-td>
                 {{ $t('proposal_total_deposit') }}
@@ -77,18 +80,11 @@
                 {{ $t('voting_time') }}
               </b-td><b-td>{{ formatDate(proposal.voting_start_time) }} - {{ formatDate(proposal.voting_end_time) }}</b-td>
             </b-tr>
-            <b-tr>
-              <b-td>
-                {{ $t('proposal_type') }}
-              </b-td><b-td>
-                {{ proposal.type }}
-              </b-td>
-            </b-tr>
           </tbody>
         </b-table-simple>
         <div style="white-space: pre-line">
           <object-field-component
-            :tablefield="proposal.contents"
+            :tablefield="decoratedProposalContents"
             :small="false"
           /></div>
         <b-table-simple v-if="proposal.type === 'cosmos-sdk/SoftwareUpgradeProposal'">
@@ -108,7 +104,7 @@
             {{ $t('btn_back_list') }}
           </b-button>
         </router-link>
-        <b-button
+        <!-- <b-button
           v-b-modal.operation-modal
           :disabled="proposal.status!=2"
           variant="primary"
@@ -116,7 +112,7 @@
           @click="openModal('Vote')"
         >
           {{ $t('btn_vote') }}
-        </b-button>
+        </b-button> -->
       </b-card-footer>
     </b-card>
     <b-card no-body>
@@ -241,7 +237,7 @@
         >
           {{ $t('btn_deposit') }}
         </b-button>
-        <b-button
+        <!-- <b-button
           v-b-modal.operation-modal
           :disabled="proposal.status!=2"
           variant="primary"
@@ -249,7 +245,7 @@
           @click="openModal('Vote')"
         >
           {{ $t('btn_vote') }}
-        </b-button>
+        </b-button> -->
       </b-card-footer>
     </b-card>
     <operation-modal
@@ -364,6 +360,25 @@ export default {
       }
       return '0001-01-01 00:00:00'
     },
+    decoratedProposalContents() {
+      const obj = {}
+
+      // Rename some keys of this.proposal.contents for better meaning in UI
+      const keyMap = {
+        '@type': 'Proposal Type', // rename key `@type` to `Proposal Type`: https://line-enterprise.slack.com/archives/C03PCPW8LTF/p1688968607873879?thread_ts=1688955976.252179&cid=C03PCPW8LTF
+      }
+      Object.keys(this.proposal.contents).forEach(key => {
+        if (keyMap[key]) {
+          obj[keyMap[key]] = this.proposal.contents[key]
+        } else {
+          obj[key] = this.proposal.contents[key]
+        }
+      })
+      return obj
+    },
+    layoutSkin() {
+      return this.$store.state.appConfig.layout.skin
+    },
   },
   created() {
     const pid = this.$route.params.proposalid
@@ -383,9 +398,9 @@ export default {
       this.$http.getValidatorList()
     }
 
-    this.$http.getGovernanceProposer(pid).then(res => {
-      this.proposer = res
-    })
+    // this.$http.getGovernanceProposer(pid).then(res => {
+    //   this.proposer = res
+    // })
     this.$http.getGovernanceDeposits(pid).then(res => {
       this.deposits = res
     })

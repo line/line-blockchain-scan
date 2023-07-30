@@ -556,12 +556,44 @@
 
 // For Medium and down: iPad support for navbr
 
+@media (min-width: 1200px) {
+  .header-navbar {
+    // floating nav
+    &.floating-nav {
+      // In Windows large screen, toggling a modal will add a class `modal-open` to `body` tag
+      // and a padding-right is also added to body tag.
+      // The padding-right value is equal to the width of the Windows scrollbar, which is 17px.
+      // There is no official docs stating about this value but it's able to find in Windows Registry HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics.
+      // The `ScrollWidth` key's default value is `-255`, which actual means `-255 / -15` = 17 (px).
+
+      // The following width for .header-navbar.floating-nav.windows originated from the calculation above:
+      // width: calc(100vw - (100vw - 100%) - calc(#{$content-padding} * 2) - #{$menu-expanded-width});
+      // However, there was an issue that `(100vw - 100%)`, which actually means scrollbar width, does not return the same value
+      // in 2 cases: scrollbar visible & scrollbar invisible.
+
+      // Therefore, an approach to fix is to replace `(100vw - 100%)` part with fixed value of the Windows scrollbar,
+      // and the component is left-positioned instead of right because the scrollbar is on right side and shouldn't be referernce for positioning in this case.
+      &.windows {
+        right: unset;
+        left: $menu-expanded-width;
+        width: calc(100vw - 17px - calc(#{$content-padding} * 2) - #{$menu-expanded-width});
+      }
+    }
+  }
+}
+
 // navbar static top
 @include media-breakpoint-down(lg) {
   .header-navbar {
     // floating nav width
     &.floating-nav {
       width: calc(100vw - (100vw - 100%) - calc(#{$content-padding} * 2));
+
+      &.windows {
+        right: unset;
+        left: 0;
+        width: calc(100vw - 17px - calc(#{$content-padding} * 2));
+      }
     }
     &.navbar-static-top {
       left: 0;
@@ -603,6 +635,14 @@
       ) !important; // SM screen calc as per updated spacings
       margin-left: 1rem;
       margin-right: 1.2rem;
+      
+      &.windows {
+        right: unset;
+        left: 0;
+        width: calc(
+          100vw - 17px - calc(#{$content-padding} + 0.4rem)
+        ) !important; // SM screen calc as per updated spacings
+      }
     }
 
     .navbar-container ul.navbar-nav li .selected-language {

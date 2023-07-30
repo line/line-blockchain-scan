@@ -128,6 +128,7 @@ import { formatToken, formatTokenAmount, formatTokenDenom } from '@/libs/formatt
 import vSelect from 'vue-select'
 import { operationalModal } from '@/@core/mixins/operational-modal'
 import { validators } from '@/@core/mixins/validators'
+import { HIDDEN_VALIDATOR_STATUSES } from '@/constants/validators'
 import MaxClearButtonGroup from '../MaxClearButtonGroup.vue'
 
 export default {
@@ -193,17 +194,19 @@ export default {
     valOptions() {
       let options = []
       const vals = this.decoratedValidators
-        .filter(x => !this.isOverVotingPower(x.votingPower))
+        .filter(x => !this.isOverVotingPower(x) && !HIDDEN_VALIDATOR_STATUSES.includes(x.status))
         .map(x => ({ value: x.operator_address, label: `${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
       if (vals.length > 0) {
         options.push({ value: null, label: '=== ACTIVE VALIDATORS ===' })
         options = options.concat(vals)
       }
-      const unbunded = this.unbundValidators.map(x => ({ value: x.operator_address, label: `* ${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
-      if (unbunded.length > 0) {
-        options.push({ value: null, label: '=== INACTIVE VALIDATORS ===', disabled: true })
-        options = options.concat(unbunded)
-      }
+
+      // `this.unbundValidators` includes unbonded validators and is excluded 'Validator' of Delegate pop-over in v1.2.1.2
+      // const unbunded = this.unbundValidators.map(x => ({ value: x.operator_address, label: `* ${x.description.moniker} (${Number(x.commission.rate) * 100}%)` }))
+      // if (unbunded.length > 0) {
+      //   options.push({ value: null, label: '=== INACTIVE VALIDATORS ===', disabled: true })
+      //   options = options.concat(unbunded)
+      // }
       return options
     },
     balanceOptions() {
@@ -248,13 +251,13 @@ export default {
       const feeInCoinMinimalDenom = getUnitAmount(fee, this.token)
       const maxAmountAfterFeeInCoinMinimalDenom = this.maxAmountBeforeFeeInCoinMinimalDenom - feeInCoinMinimalDenom
       if (this.isSimulating) {
-        this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+        this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token, false)
         this.isSimulating = false
         this.isMaxWarningShowed = true
       }
       if (this.isMaxWarningShowed) {
         if (getUnitAmount(this.amount, this.token) > maxAmountAfterFeeInCoinMinimalDenom) {
-          this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token)
+          this.amount = formatTokenAmount(maxAmountAfterFeeInCoinMinimalDenom, 6, this.token, false)
         }
       }
     },

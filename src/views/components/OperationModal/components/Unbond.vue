@@ -218,7 +218,7 @@ export default {
     maximizeAmount() {
       if (this.maxAmountBeforeFeeInCoinMinimalDenom) {
         // Due to specs, user can undelegate all the amount without deducting the fee.
-        this.amount = formatTokenAmount(this.maxAmountBeforeFeeInCoinMinimalDenom, 6, this.token)
+        this.amount = formatTokenAmount(this.maxAmountBeforeFeeInCoinMinimalDenom, 6, this.token, false)
       }
     },
   },

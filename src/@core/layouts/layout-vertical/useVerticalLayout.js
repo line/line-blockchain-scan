@@ -59,10 +59,12 @@ export default function useVerticalLayout(navbarType, footerType) {
   })
 
   const navbarTypeClass = computed(() => {
+    const isWindowsBrowser = navigator.userAgent.indexOf('Windows') !== -1
+    const additionalClasses = isWindowsBrowser ? ' windows' : ''
     if (navbarType.value === 'sticky') return 'fixed-top'
     if (navbarType.value === 'static') return 'navbar-static-top'
     if (navbarType.value === 'hidden') return 'd-none'
-    return 'floating-nav'
+    return `floating-nav${additionalClasses}`
   })
 
   const footerTypeClass = computed(() => {

@@ -246,12 +246,12 @@ export default class ChainFetch {
   }
 
   async getGovernanceTally(pid, total) {
-    return this.get(`/gov/proposals/${pid}/tally`).then(data => new ProposalTally().init(commonProcess(data), total))
+    return this.get(`/cosmos/gov/v1beta1/proposals/${pid}/tally`).then(data => new ProposalTally().init(commonProcess(data, 'tally'), total))
   }
 
-  getGovernance(pid) {
-    return this.get(`/gov/proposals/${pid}`).then(data => {
-      const p = new Proposal().init(commonProcess(data), 0)
+  async getGovernance(pid) {
+    return this.get(`/cosmos/gov/v1beta1/proposals/${pid}`).then(data => {
+      const p = new Proposal().init(commonProcess(data, 'proposal'), 0)
       p.versionFixed(this.config.sdk_version)
       return p
     })
@@ -271,7 +271,7 @@ export default class ChainFetch {
         return Array.isArray(result) ? result.reverse().map(d => new Deposit().init(d)) : result
       })
     }
-    return this.get(`/gov/proposals/${pid}/deposits`).then(data => {
+    return this.get(`/cosmos/gov/v1beta1/proposals/${pid}/deposits`).then(data => {
       const result = commonProcess(data)
       return Array.isArray(result) ? result.reverse().map(d => new Deposit().init(d)) : result
     })
@@ -287,11 +287,13 @@ export default class ChainFetch {
     if (this.config.chain_name === 'certik') {
       return this.get(`/shentu/gov/v1alpha1/proposals/${pid}/votes?pagination.key=${encodeURIComponent(next)}&pagination.limit=${limit}`)
     }
-    return this.get(`/lbm/gov/v1/proposals/${pid}/votes?pagination.key=${encodeURIComponent(next)}&pagination.limit=${limit}`)
+    return this.get(`/cosmos/gov/v1beta1/proposals/${pid}/votes?pagination.key=${encodeURIComponent(next)}&pagination.limit=${limit}`)
   }
 
   async getGovernanceList() {
-    const url = this.config.chain_name === 'certik' ? '/shentu/gov/v1alpha1/proposals?pagination.limit=500' : '/lbm/gov/v1/proposals?pagination.limit=500'
+    const url = this.config.chain_name === 'certik'
+      ? '/shentu/gov/v1alpha1/proposals?pagination.limit=500'
+      : '/cosmos/gov/v1beta1/proposals?pagination.limit=500'
     return Promise.all([this.get(url), this.get('/cosmos/staking/v1beta1/pool')]).then(data => {
       const pool = new StakingPool().init(commonProcess(data[1], 'pool'))
       let proposals = commonProcess(data[0])
