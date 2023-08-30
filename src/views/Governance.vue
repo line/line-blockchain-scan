@@ -48,7 +48,7 @@
               Rejected
             </b-badge>
             <router-link
-              :to="`./gov/${p.id}`"
+              :to="{ name: 'proposal', params: { proposalid: p.id }}"
             >
               {{ p.title }}
             </router-link></b-card-title>

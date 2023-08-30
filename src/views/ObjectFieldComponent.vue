@@ -32,6 +32,11 @@
           {{ 'null' }}
         </b-td>
         <b-td
+          v-else-if="typeof (value) === 'object' && value.isMarkdown"
+        >
+          <VueMarkdown :source="value.value" />
+        </b-td>
+        <b-td
           v-else-if="typeof (value) ==='object'"
           hover
           class="overflow-hidden"
@@ -80,6 +85,7 @@
 import {
   BTableSimple, BTr, BTd, BTbody,
 } from 'bootstrap-vue'
+import VueMarkdown from 'vue-markdown'
 import {
   abbr, getStakingValidatorByHex, isHexAddress, isStringArray, isToken,
 } from '@/libs/utils'
@@ -94,6 +100,7 @@ export default {
     BTd,
     BTbody,
     ArrayFieldComponent,
+    VueMarkdown,
   },
   props: {
     tablefield: {

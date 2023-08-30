@@ -1,8 +1,8 @@
 {
   "name": "line-blockchain-scan",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "config": {
-    "hotfixVersion": "2",
+    "hotfixVersion": "0",
     "qaVersion": "0"
   },
   "author": "Blockchain FE VN <dl_blockchain_fe_vn@linecorp.com>",
@@ -10,6 +10,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --mode production",
+    "test:unit": "vue-cli-service test:unit",
     "postbuild": "rimraf ./dist/*.js.map && rimraf ./dist/**/*.js.map",
     "lint": "vue-cli-service lint",
     "analyz": "vue-cli-service build --report"
@@ -103,16 +104,21 @@
     "@vue/cli-plugin-babel": "~4.5.9",
     "@vue/cli-plugin-eslint": "~4.5.9",
     "@vue/cli-plugin-router": "~4.5.9",
+    "@vue/cli-plugin-unit-jest": "~5.0.0",
     "@vue/cli-plugin-vuex": "~4.5.9",
     "@vue/cli-service": "~4.5.9",
     "@vue/eslint-config-airbnb": "^5.3.0",
+    "@vue/test-utils": "^2.0.0-0",
+    "@vue/vue2-jest": "^29.2.4",
     "@vuepress/plugin-medium-zoom": "^1.7.1",
     "babel-eslint": "^10.0.3",
+    "babel-jest": "^27.0.6",
     "compression-webpack-plugin": "6.1.1",
     "eslint": "6.8.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-vue": "6.2.2",
     "html-webpack-plugin": "^4.0.0",
+    "jest": "^27.0.5",
     "sass": "1.32.*",
     "sass-loader": "^10.1.0",
     "vue-template-compiler": "2.x",

@@ -373,6 +373,14 @@ export default {
         } else {
           obj[key] = this.proposal.contents[key]
         }
+
+        // description is desired to be rendered with markdown
+        if (key === 'description') {
+          obj[key] = {
+            value: this.proposal.contents[key],
+            isMarkdown: true,
+          }
+        }
       })
       return obj
     },

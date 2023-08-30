@@ -44,7 +44,7 @@
             </template>
             <span class="font-weight-bolder d-block text-nowrap">
               <router-link
-                :to="`./staking/${data.item.operator_address}`"
+                :to="{ name: 'staking-valiator', params: { address: data.item.operator_address }}"
               >
                 {{ data.item.description.moniker }}
               </router-link>
@@ -173,7 +173,7 @@
               </template>
               <span class="font-weight-bolder d-block text-nowrap">
                 <router-link
-                  :to="`./staking/${data.item.operator_address}`"
+                  :to="{ name: 'staking-valiator', params: { address: data.item.operator_address }}"
                 >
                   {{ data.item.description.moniker }}
                 </router-link>

@@ -38,7 +38,16 @@ export default class LandpressContentAPI {
     return this.getSingleType(singleType).then(data => {
       const result = []
       fields.forEach((field, index) => {
-        result[index] = sanitize(data.body[field])
+        if (typeof field === 'string') {
+          result[index] = sanitize(data.body[field])
+        } else if (typeof field === 'object') {
+          const { name: fieldName } = field
+          let { sanitize: shouldSanitize } = field
+          if (shouldSanitize === undefined) shouldSanitize = true
+          result[index] = shouldSanitize
+            ? sanitize(data.body[fieldName])
+            : data.body[fieldName]
+        }
       })
       return result
     })

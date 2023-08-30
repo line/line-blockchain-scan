@@ -6,6 +6,7 @@ import {
   VALIDATORS_FOUNDATION,
   HIDDEN_VALIDATOR_STATUSES,
 } from '@/constants/validators'
+import { landpressProject } from '@/libs/landpress-content-api'
 
 // Previous business logic: https://wiki.linecorp.com/display/blockchain/LBS_v1.1.0_Policies
 // Current business logic: https://wiki.linecorp.com/display/blockchain/LBS_v1.2.2_Overview
@@ -16,10 +17,18 @@ const VOTING_POWER_LIMIT_SINGLE_US_COMPANY = 0.13
 
 const phase = window.appConfig.PHASE
 
+const metadataST = landpressProject.single_type.line_validator_sorting
+
 export const votingPowerPolicy = {
   created() {
     this.$http.getStakingPool().then(pool => {
       this.stakingPool = pool.bondedToken
+    })
+    this.$landpress.getSingleTypeMultipleFields(
+      metadataST,
+      [{ name: 'line_validator_sorting', sanitize: false }],
+    ).then(([data]) => {
+      if (data) this.metadata = data
     })
   },
   data() {
@@ -29,6 +38,11 @@ export const votingPowerPolicy = {
       foundationTax: new BigNumber(0),
       communityTax: new BigNumber(0),
       validators: [],
+      metadata: {
+        validators: [],
+        groups: [],
+        extraOrderPolicy: {},
+      },
     }
   },
   computed: {
@@ -53,27 +67,55 @@ export const votingPowerPolicy = {
           isFoundationValidator: this.isFoundationValidator(validator.description.moniker),
         }))
         .sort((a, b) => {
-          // desc isLineAffiliate (... => 3 => 2 => 1 => false)
-          if (a.isLineAffiliate < b.isLineAffiliate) return 1
-          if (a.isLineAffiliate > b.isLineAffiliate) return -1
+          const { groupId: gA, order: oA } = this.getGroupOfValidator(a)
+          const { groupId: gB, order: oB } = this.getGroupOfValidator(b)
+          const mA = this.getMetaOfGroup(gA)
+          const mB = this.getMetaOfGroup(gB)
 
-          // then desc isFGM (true => false)
-          if (a.isFGM < b.isFGM) return 1
-          if (a.isFGM > b.isFGM) return -1
+          if (gA !== gB) {
+            // if one of two validators is null, return immediately
+            if (gA === null) return 1
+            if (gB === null) return -1
 
-          // then desc isFoundationValidator (true => false)
-          if (a.isFoundationValidator < b.isFoundationValidator) return 1
-          if (a.isFoundationValidator > b.isFoundationValidator) return -1
+            if (mA.order > mB.order) return 1
+            if (mA.order < mB.order) return -1
+          }
 
-          // then desc arr (greater first)
-          if (a.arr.lt(b.arr)) return 1
-          if (a.arr.gt(b.arr)) return -1
+          const orderMethods = []
+          if (gA === null) {
+            orderMethods.push(this.metadata.extraOrderPolicy)
+          } else {
+            if (mA.orderMethods.primary) orderMethods.push(mA.orderMethods.primary)
+            if (mA.orderMethods.subsidiary) orderMethods.push(mA.orderMethods.subsidiary)
+          }
 
-          // then asc moniker (alphabetical)
-          if (a.description.moniker > b.description.moniker) return 1
-          if (a.description.moniker < b.description.moniker) return -1
+          let indicator = 0
+          orderMethods.some(({ method, direction }) => {
+            switch (method) {
+              case 'BY_ORDER_VALUE':
+                if (oA > oB) indicator = +1
+                if (oA < oB) indicator = -1
+                break
+              case 'BY_ARR':
+                if (a.arr.lt(b.arr)) indicator = -1
+                if (a.arr.gt(b.arr)) indicator = 1
+                break
+              case 'BY_ALPHABET':
+                if (a.description.moniker > b.description.moniker) indicator = 1
+                if (a.description.moniker < b.description.moniker) indicator = -1
+                break
+              default:
+                break
+            }
+            const coef = direction === 'ASC' ? 1 : -1 // multiplicative inversion with the sorting direction if it is "DESC"
+            indicator *= coef
 
-          return 0
+            // break this loop when res !== 0
+            if (indicator !== 0) return true
+            return false
+          })
+
+          return indicator
         })
     },
     totalVotingPowerOfLineAffiliates() {
@@ -88,6 +130,16 @@ export const votingPowerPolicy = {
     },
   },
   methods: {
+    getGroupOfValidator(validator) {
+      const matchingValidator = this.metadata.validators.find(x => x.operatorAddress === validator.operator_address)
+      if (matchingValidator) return { groupId: matchingValidator.group, order: matchingValidator.order }
+      return { groupId: null, order: null }
+    },
+    getMetaOfGroup(groupId) {
+      const matchingGroup = this.metadata.groups.find(x => x.id === groupId)
+      if (matchingGroup) return matchingGroup
+      return null
+    },
     isLineAffiliate(address) {
       if (VALIDATORS_OWNED_BY_LINE_AFFILIATES[phase].includes(address)) {
         // as there is the defined order between LINE affiliates,
