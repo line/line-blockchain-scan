@@ -39,7 +39,14 @@
                 v-b-tooltip.hover.v-primary
                 v-b-tooltip.hover.right="data.item.description.details"
               >
-                <feather-icon icon="ServerIcon" />
+                <div
+                  class="w-100 h-100 d-flex justify-content-center align-items-center"
+                  :style="{
+                    'background-color': data.item.defaultBackgroundColor,
+                  }"
+                >
+                  <span>{{ data.item.description.moniker[0] }}</span>
+                </div>
               </b-avatar>
             </template>
             <span class="font-weight-bolder d-block text-nowrap">
@@ -79,11 +86,10 @@
         </template>
         <template #cell(operation)="data">
           <b-button
-            v-b-modal.operation-modal
             :name="data.item.operator_address"
             variant="primary"
             size="sm"
-            @click="selectValidator(data.item.operator_address)"
+            @click="() => onDelegateClick(data)"
           >
             Delegate
           </b-button>
@@ -168,7 +174,14 @@
                   v-b-tooltip.hover.v-primary
                   v-b-tooltip.hover.right="data.item.description.details"
                 >
-                  <feather-icon icon="ServerIcon" />
+                  <div
+                    class="w-100 h-100 d-flex justify-content-center align-items-center"
+                    :style="{
+                      'background-color': data.item.defaultBackgroundColor,
+                    }"
+                  >
+                    <span>{{ data.item.description.moniker[0] }}</span>
+                  </div>
                 </b-avatar>
               </template>
               <span class="font-weight-bolder d-block text-nowrap">
@@ -208,12 +221,11 @@
           </template>
           <template #cell(operation)="data">
             <b-button
-              v-b-modal.operation-modal
               :name="data.item.operator_address"
               variant="primary"
               size="sm"
               :disabled="isOverVotingPower(data.item)"
-              @click="selectValidator(data.item.operator_address)"
+              @click="() => onDelegateClick(data)"
             >
               Delegate
             </b-button>
@@ -259,6 +271,7 @@
       type="Delegate"
       :validator-address="validator_address"
     />
+    <sanctioned-region-modal />
     <div id="txevent" />
   </div>
 </template>
@@ -272,6 +285,7 @@ import { percent } from '@/libs/utils'
 import { formatToken } from '@/libs/formatter'
 import { keybase } from '@/libs/fetch'
 import OperationModal from '@/views/components/OperationModal/index.vue'
+import SanctionedRegionModal from '@/views/components/SanctionedRegionModal.vue'
 import { HIDDEN_VALIDATOR_STATUSES } from '@/constants/validators'
 import { landpressProject } from '@/libs/landpress-content-api'
 // import { toHex } from '@cosmjs/encoding'
@@ -280,6 +294,8 @@ import { landpressProject } from '@/libs/landpress-content-api'
 // Landpress single type
 const arrGuideST = landpressProject.single_type.staking_arr_guide
 const importantNoticeST = landpressProject.single_type.staking_important_notice
+
+const DEFAULT_BACKGROUND_COLORS = ['#00C88F', '#01B8C5', '#5078F2', '#8F60EF', '#FFB550']
 
 export default {
   components: {
@@ -295,6 +311,7 @@ export default {
     BCardBody,
     BButton,
     OperationModal,
+    SanctionedRegionModal,
   },
   directives: {
     'b-tooltip': VBTooltip,
@@ -364,6 +381,7 @@ export default {
       const tab = this.selectedStatus === 'active' ? this.decoratedValidators : this.inactiveValidators
       return tab.filter(x => !HIDDEN_VALIDATOR_STATUSES.includes(x.status)).map(x => {
         const xh = x
+        xh.defaultBackgroundColor = DEFAULT_BACKGROUND_COLORS[Math.floor(Math.random() * DEFAULT_BACKGROUND_COLORS.length)]
         if (Object.keys(this.latestPower).length > 0 && Object.keys(this.previousPower).length > 0) {
           const latest = this.latestPower[x.consensus_pubkey.key] || 0
           const previous = this.previousPower[x.consensus_pubkey.key] || 0
@@ -515,6 +533,17 @@ export default {
           }
         })
       }
+    },
+    onDelegateClick(data) {
+      this.$http.getRegionAllowed().then(res => {
+        const { result } = res
+        if (result) {
+          this.selectValidator(data.item.operator_address)
+          this.$bvModal.show('operation-modal')
+        } else {
+          this.$bvModal.show('sanctioned-region-modal')
+        }
+      })
     },
   },
 }

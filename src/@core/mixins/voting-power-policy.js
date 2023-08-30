@@ -6,7 +6,7 @@ import {
   VALIDATORS_FOUNDATION,
   HIDDEN_VALIDATOR_STATUSES,
 } from '@/constants/validators'
-import { landpressProject } from '@/libs/landpress-content-api'
+import { landpressProjectDV } from '@/libs/landpress-content-api'
 
 // Previous business logic: https://wiki.linecorp.com/display/blockchain/LBS_v1.1.0_Policies
 // Current business logic: https://wiki.linecorp.com/display/blockchain/LBS_v1.2.2_Overview
@@ -17,14 +17,14 @@ const VOTING_POWER_LIMIT_SINGLE_US_COMPANY = 0.13
 
 const phase = window.appConfig.PHASE
 
-const metadataST = landpressProject.single_type.line_validator_sorting
+const metadataST = landpressProjectDV.single_type.line_validator_sorting
 
 export const votingPowerPolicy = {
   created() {
     this.$http.getStakingPool().then(pool => {
       this.stakingPool = pool.bondedToken
     })
-    this.$landpress.getSingleTypeMultipleFields(
+    this.$landpressDV.getSingleTypeMultipleFields(
       metadataST,
       [{ name: 'line_validator_sorting', sanitize: false }],
     ).then(([data]) => {

@@ -1,0 +1,35 @@
+{
+  "project": {
+    "alpha": {
+      "url": "https://landpress-content.line-scdn.net/contents/v2/projects/1972",
+      "x-client-api-key": "5c00eb9eea65b234adbcb44b",
+      "collections": {
+      },
+      "single_type": {
+        "staking_arr_guide": "staking_arr_guide",
+        "staking_important_notice": "staking_important_notice",
+        "tos_common": "tos_common",
+        "tos_staking": "tos_staking",
+        "line_validator_sorting": "line_validator_sorting"
+      }
+    },
+    "beta": {
+      "url": "https://landpress-content.line-scdn.net/contents/v2/projects/1972",
+      "x-client-api-key": "5c00eb9eea65b234adbcb44b",
+      "collections": {
+      },
+      "single_type": {
+        "line_validator_sorting": "line_validator_sorting"
+      }
+    },
+    "prod": {
+      "url": "https://landpress-content.line-scdn.net/contents/v2/projects/2165",
+      "x-client-api-key": "ee3250c55938e6ac9a74aa66",
+      "collections": {
+      },
+      "single_type": {
+        "line_validator_sorting": "line_validator_sorting"
+      }
+    }
+  }
+}

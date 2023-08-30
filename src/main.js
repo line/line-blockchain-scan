@@ -71,6 +71,7 @@ require('@/assets/scss/style.scss')
 Vue.config.productionTip = false
 Vue.prototype.$http = new ChainAPI()
 Vue.prototype.$landpress = new LandpressContentAPI()
+Vue.prototype.$landpressDV = new LandpressContentAPI({ useDosiVault: true })
 
 new Vue({
   router,

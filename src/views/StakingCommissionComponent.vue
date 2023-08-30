@@ -109,8 +109,9 @@ export default {
               },
               value: {
                 color: $textHeadingColor,
-                fontSize: '2.86rem',
+                fontSize: '1.7rem',
                 fontWeight: '600',
+                offsetY: 10,
               },
             },
           },

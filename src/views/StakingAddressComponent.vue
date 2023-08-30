@@ -68,11 +68,14 @@
           />
         </b-avatar>
       </b-media-aside>
-      <b-media-body class="text-truncate">
+      <b-media-body>
         <h6 class="mb-0">
-          Consensus Public Address
+          Consensus Public Key
         </h6>
-        <small @click="copy(JSON.stringify(consensusPubkey))">{{ consensusPubkey }}</small>
+        <small
+          style="white-space: unset;word-break: break-all;"
+          @click="copy(JSON.stringify(consensusPubkey))"
+        >{{ consensusPubkey }}</small>
       </b-media-body>
     </b-media>
     <b-media

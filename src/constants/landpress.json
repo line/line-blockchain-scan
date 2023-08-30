@@ -20,8 +20,7 @@
         "staking_arr_guide": "staking_arr_guide",
         "staking_important_notice": "staking_important_notice",
         "tos_common": "tos_common",
-        "tos_staking": "tos_staking",
-        "line_validator_sorting": "line_validator_sorting"
+        "tos_staking": "tos_staking"
       }
     },
     "beta": {
@@ -44,8 +43,7 @@
         "staking_arr_guide": "staking_arr_guide",
         "staking_important_notice": "staking_important_notice",
         "tos_common": "tos_common",
-        "tos_staking": "tos_staking",
-        "line_validator_sorting": "line_validator_sorting"
+        "tos_staking": "tos_staking"
       }
     },
     "prod": {
@@ -68,8 +66,7 @@
         "staking_arr_guide": "staking_arr_guide",
         "staking_important_notice": "staking_important_notice",
         "tos_common": "tos_common",
-        "tos_staking": "tos_staking",
-        "line_validator_sorting": "line_validator_sorting"
+        "tos_staking": "tos_staking"
       }
     }
   }

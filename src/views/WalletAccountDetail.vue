@@ -190,11 +190,10 @@
           <b-card-title>Delegation</b-card-title>
           <div>
             <b-button
-              v-b-modal.operation-modal
               variant="primary"
               size="sm"
               class="mr-25"
-              @click="setOperationModalType('Delegate')"
+              @click="onDelegateClick"
             >
               <feather-icon
                 icon="LogInIcon"
@@ -410,6 +409,7 @@
         :address="address"
         :validator-address="selectedValidator"
       />
+      <sanctioned-region-modal />
       <div id="txevent" />
     </div>
   </div>
@@ -435,6 +435,7 @@ import OperationModal from '@/views/components/OperationModal/index.vue'
 import {
   formatToken, formatTokenAmount, formatTokenDenom, tokenFormatter, numberWithCommas,
 } from '@/libs/formatter'
+import SanctionedRegionModal from '@/views/components/SanctionedRegionModal.vue'
 import ObjectFieldComponent from './components/ObjectFieldComponent.vue'
 import ChartComponentDoughnut from './components/charts/ChartComponentDoughnut.vue'
 
@@ -458,6 +459,7 @@ export default {
     BTr,
     BTd,
     BPagination,
+    SanctionedRegionModal,
     // eslint-disable-next-line vue/no-unused-components
     ToastificationContent,
     ObjectFieldComponent,
@@ -748,6 +750,17 @@ export default {
             variant: 'danger',
           },
         })
+      })
+    },
+    onDelegateClick() {
+      this.$http.getRegionAllowed().then(res => {
+        const { result } = res
+        if (result) {
+          this.setOperationModalType('Delegate')
+          this.$bvModal.show('operation-modal')
+        } else {
+          this.$bvModal.show('sanctioned-region-modal')
+        }
       })
     },
   },

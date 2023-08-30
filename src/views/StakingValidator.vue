@@ -198,13 +198,13 @@
     <template>
       <b-row class="match-height">
         <b-col
-          lg="4"
+          lg="3"
           md="12"
         >
           <staking-commission-component :data="validator.commission" />
         </b-col>
         <b-col
-          lg="4"
+          lg="3"
           md="12"
         >
           <staking-reward-component
@@ -214,7 +214,7 @@
           />
         </b-col>
         <b-col
-          lg="4"
+          lg="6"
           md="12"
         >
           <staking-address-component

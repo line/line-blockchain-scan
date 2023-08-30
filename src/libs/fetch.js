@@ -530,6 +530,14 @@ export default class ChainFetch {
     const ret = fetch((Array.isArray(host) ? host[0] : host) + url).then(response => response.json())
     return ret
   }
+
+  async getRegionAllowed() {
+    const apiKey = 'dsvApi'
+    const conf = this.config
+    const index = this.getApiIndex(conf)
+    const url = `${conf[apiKey][index]}/region-allowed`
+    return fetch(url).then(response => response.json())
+  }
 }
 
 // export default chainAPI

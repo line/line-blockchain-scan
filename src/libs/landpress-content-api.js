@@ -1,14 +1,21 @@
 import { sanitize } from 'dompurify'
 
 const landpress = require('../constants/landpress.json')
+const landpressDV = require('../constants/landpress-dosi-vault.json')
 
 const phase = window.appConfig.PHASE
 export const landpressProject = landpress.project[phase]
+export const landpressProjectDV = landpressDV.project[phase]
 
 export default class LandpressContentAPI {
-  constructor() {
-    this.endpoint = landpressProject.url
-    this.clientApiKey = landpressProject['x-client-api-key']
+  constructor(options) {
+    const config = options && options.useDosiVault
+      ? landpressProjectDV
+      : landpressProject
+
+    this.endpoint = config.url
+    this.clientApiKey = config['x-client-api-key']
+    this.decoratedClientApiKey = this.clientApiKey ? `token ${this.clientApiKey}` : ''
     this.headers = {
       'Content-Type': 'text/plain',
       Accept: '*/*',
@@ -16,7 +23,7 @@ export default class LandpressContentAPI {
 
       // if there is no x-client-api-key,
       // don't include it in header in order to use Public Permission
-      ...(this.clientApiKey && { 'x-client-api-key': this.clientApiKey }),
+      ...(this.decoratedClientApiKey && { 'x-client-api-key': this.decoratedClientApiKey }),
     }
   }
 

@@ -36,7 +36,7 @@
             <h6 class="transaction-title">
               {{ formatDenom(d) }}
             </h6>
-            <small>{{ formatNumber(d.amount) }}</small>
+            <small>{{ `${formatNumber(d.amount)} ${d.denom}` }}</small>
           </b-media-body>
         </b-media>
         <small
